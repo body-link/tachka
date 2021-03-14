@@ -8,6 +8,4 @@ RUN npm install --only=prod
 
 COPY . .
 
-ENV NODE_ENV production
-
-CMD [ "npm", "start" ]
+CMD [ "npm", "run", "start:prod" ]

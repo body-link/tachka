@@ -5,7 +5,7 @@ import { Between, Equal, FindManyOptions, LessThanOrEqual, MoreThanOrEqual } fro
 import { toBody } from '../../../common/utils';
 import { requestValidator$, t } from '@marblejs/middleware-io';
 import { IntFromString } from 'io-ts-types';
-import { recordRepository$ } from './utils';
+import { recordRepository$ } from '../../../common/db';
 import { UnixTimeFromString } from '../../../common/io/UnixTime';
 import { optional, refine } from '../../../common/io/utils';
 import { Slug } from '../../../common/io/Slug';

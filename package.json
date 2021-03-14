@@ -5,13 +5,16 @@
     "node": ">=15.11.0"
   },
   "scripts": {
-    "start": "ts-node-transpile-only --dir server index.ts"
+    "start": "ts-node-transpile-only --dir server index.ts",
+    "start:prod": "cross-env NODE_ENV=production npm start",
+    "typeorm": "ts-node-transpile-only --dir server ../node_modules/typeorm/cli.js -f server/ormconfig"
   },
   "dependencies": {
     "@marblejs/core": "^3.4.9",
     "@marblejs/middleware-body": "^3.4.9",
     "@marblejs/middleware-io": "^3.4.9",
     "@marblejs/middleware-logger": "^3.4.9",
+    "cross-env": "^7.0.3",
     "dotenv": "^8.2.0",
     "fp-ts": "^2.9.5",
     "io-ts-types": "^0.5.15",

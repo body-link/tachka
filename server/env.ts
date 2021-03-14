@@ -28,7 +28,7 @@ export const getEnvSecret = (): string => {
   return secret;
 };
 
-export const getMySQL = (): string => {
+export const getEnvMySQL_URL = (): string => {
   const url = process.env.MYSQL_URL;
   if (!isDefined(url)) {
     throw Error('Please set MYSQL_URL environment variable');
