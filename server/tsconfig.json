@@ -4,6 +4,7 @@
     "allowUmdGlobalAccess": false,
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,
+    "downlevelIteration": true,
     "alwaysStrict": true,
     "assumeChangesOnlyAffectDirectDependencies": false,
     "checkJs": false,

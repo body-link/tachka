@@ -6,6 +6,7 @@ dotenv.config({ path: `${__dirname}/.env` });
 const env = process.env.NODE_ENV;
 const isProd = env === 'production';
 const isDev = !isProd;
+const url = process.env.APP_URL;
 const port = process.env.PORT ?? '8080';
 const timezone = (process.env.TZ = 'Z');
 
@@ -13,6 +14,7 @@ export const ENV = {
   env,
   isDev,
   isProd,
+  url,
   port,
   timezone,
 };

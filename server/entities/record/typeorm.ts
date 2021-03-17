@@ -1,7 +1,7 @@
 import { Column, Entity, Index, PrimaryGeneratedColumn } from 'typeorm';
 import { t } from '@marblejs/middleware-io';
 import { either } from 'fp-ts/Either';
-import { Record, TRecord } from './types';
+import { Record, IRecord } from './types';
 import { isDefined, isNull } from '../../common/type-guards';
 
 @Entity({
@@ -11,30 +11,30 @@ export class RecordEntity {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
-  @Column()
+  @Column('varchar', { nullable: false })
   @Index()
   bucket!: string;
 
-  @Column()
+  @Column('varchar', { nullable: false })
   @Index()
   provider!: string;
 
-  @Column('int', { width: 11, unsigned: true })
+  @Column('int', { unsigned: true, nullable: false })
   @Index()
   timestamp!: number;
 
   @Column('smallint', { nullable: true })
   offset!: number | null;
 
-  @Column('simple-json')
+  @Column('simple-json', { nullable: false })
   data!: string;
 }
 
-export interface IRecordEntityFromRecord extends t.Type<RecordEntity, TRecord, unknown> {}
+export interface IRecordEntityFromRecord extends t.Type<RecordEntity, IRecord, unknown> {}
 
 export const RecordEntityFromRecord: IRecordEntityFromRecord = new t.Type<
   RecordEntity,
-  TRecord,
+  IRecord,
   unknown
 >(
   'RecordEntityFromRecord',
@@ -52,7 +52,7 @@ export const RecordEntityFromRecord: IRecordEntityFromRecord = new t.Type<
       }
     }),
   (a) => {
-    const d: TRecord = { ...(a as TRecord), data: JSON.parse(a.data) };
+    const d: IRecord = { ...(a as IRecord), data: JSON.parse(a.data) };
     if (isNull(a.offset)) {
       delete d.offset;
     }

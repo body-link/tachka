@@ -1,33 +1,23 @@
-import { combineRoutes, HttpError, HttpMiddlewareEffect, HttpStatus } from '@marblejs/core';
-import { recordList$ } from './external/record/list.effect';
-import { recordCreate$ } from './external/record/create.effect';
-import { login$, logout$ } from './internal/auth.effects';
-import { mergeMap } from 'rxjs/operators';
-import { of, throwError } from 'rxjs';
-import { isDefined } from '../common/type-guards';
-import { getEnvSecret } from '../env';
-
-const authorize$: HttpMiddlewareEffect = (req$) =>
-  req$.pipe(
-    mergeMap((req) => {
-      const header = req.headers.authorization;
-      if (isDefined(header) && header.replace('Bearer ', '') === getEnvSecret()) {
-        return of(req);
-      }
-      return throwError(new HttpError('Unauthorized', HttpStatus.UNAUTHORIZED));
-    })
-  );
+import { combineRoutes } from '@marblejs/core';
+import { recordListEffect$ } from './external/record/list.effect';
+import { recordCreateEffect$ } from './external/record/create.effect';
+import { loginEffect$, logoutEffect$ } from './internal/auth.effects';
+import { googleOAuth2CallbackEffect$ } from './custom/googleOAuth2Callback.effect';
+import { integrationDataSetEffect$ } from './internal/integration/data.effects';
+import { authorize$ } from './middlewares';
 
 export const api$ = combineRoutes('/', [
   combineRoutes('/', [
-    login$,
-    combineRoutes('/', {
-      effects: [logout$],
+    loginEffect$,
+    logoutEffect$,
+    combineRoutes('/integration', {
+      effects: [combineRoutes('/data', [integrationDataSetEffect$])],
       middlewares: [authorize$],
     }),
+    combineRoutes('/custom', [googleOAuth2CallbackEffect$]),
   ]),
   combineRoutes('/api/v1', {
-    effects: [combineRoutes('/record', [recordList$, recordCreate$])],
+    effects: [combineRoutes('/record', [recordListEffect$, recordCreateEffect$])],
     middlewares: [authorize$],
   }),
 ]);

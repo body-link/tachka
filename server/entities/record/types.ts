@@ -17,4 +17,4 @@ export const Record = t.type(
   'Record'
 );
 
-export type TRecord = t.TypeOf<typeof Record>;
+export type IRecord = t.TypeOf<typeof Record>;
