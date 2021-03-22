@@ -90,7 +90,7 @@ export interface IGoogleMediaMetadata {
   creationTime: Date;
   height: string;
   width: string;
-  photo: IGooglePhoto;
+  photo: Partial<IGooglePhoto>;
 }
 
 export interface IGooglePhoto {

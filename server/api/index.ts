@@ -1,10 +1,15 @@
 import { combineRoutes } from '@marblejs/core';
+import { authorize$ } from './middlewares';
 import { recordListEffect$ } from './external/record/list.effect';
 import { recordCreateEffect$ } from './external/record/create.effect';
 import { loginEffect$, logoutEffect$ } from './internal/auth.effects';
 import { googleOAuth2CallbackEffect$ } from './custom/googleOAuth2Callback.effect';
 import { integrationDataSetEffect$ } from './internal/integration/data.effects';
-import { authorize$ } from './middlewares';
+import {
+  managerStatusEffect$,
+  managerCreateEffect$,
+  managerStartEffect$,
+} from './internal/automation/manager.effects';
 
 export const api$ = combineRoutes('/', [
   combineRoutes('/', [
@@ -12,6 +17,16 @@ export const api$ = combineRoutes('/', [
     logoutEffect$,
     combineRoutes('/integration', {
       effects: [combineRoutes('/data', [integrationDataSetEffect$])],
+      middlewares: [authorize$],
+    }),
+    combineRoutes('/automation', {
+      effects: [
+        combineRoutes('/manager', [
+          managerStatusEffect$,
+          managerStartEffect$,
+          managerCreateEffect$,
+        ]),
+      ],
       middlewares: [authorize$],
     }),
     combineRoutes('/custom', [googleOAuth2CallbackEffect$]),

@@ -3,6 +3,8 @@ import { t } from '@marblejs/middleware-io';
 import { either } from 'fp-ts/Either';
 import { IIntegrationAuth, IntegrationAuth } from './types';
 import { IntegrationDataEntity } from '../integration_data/typeorm';
+import { map } from 'rxjs/operators';
+import { connection$ } from '../../common/db';
 
 @Entity({
   name: 'integration_auth',
@@ -26,7 +28,7 @@ export class IntegrationAuthEntity {
 }
 
 export interface IIntegrationDataEntityFromIntegrationData
-  extends t.Type<IntegrationAuthEntity, IIntegrationAuth, unknown> {}
+  extends t.Type<IntegrationAuthEntity, IIntegrationAuth> {}
 
 export const IntegrationAuthEntityFromIntegrationAuth: IIntegrationDataEntityFromIntegrationData = new t.Type<
   IntegrationAuthEntity,
@@ -53,4 +55,8 @@ export const IntegrationAuthEntityFromIntegrationAuth: IIntegrationDataEntityFro
     };
     return d;
   }
+);
+
+export const integrationAuthRepository$ = connection$.pipe(
+  map((connection) => connection.getRepository(IntegrationAuthEntity))
 );

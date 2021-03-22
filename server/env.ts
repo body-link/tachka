@@ -31,11 +31,11 @@ export const getEnvSecret = (): string => {
 };
 
 export const getEnvMySQL_URL = (): string => {
-  const url = process.env.MYSQL_URL;
-  if (!isDefined(url)) {
+  const URL = process.env.MYSQL_URL;
+  if (!isDefined(URL)) {
     throw Error('Please set MYSQL_URL environment variable');
   }
-  return url;
+  return URL;
 };
 
 const SECRET_FROM_DOTENV =

@@ -2,7 +2,11 @@ import { t } from '@marblejs/middleware-io';
 import * as E from 'fp-ts/Either';
 import { pipe } from 'fp-ts/function';
 import { failure } from 'io-ts/PathReporter';
-import { withValidate } from 'io-ts-types';
+import { NonEmptyString, withValidate } from 'io-ts-types';
+import { nanoid } from 'nanoid';
+import { getUnixTime, fromUnixTime } from 'date-fns';
+import { IUnixTime } from './UnixTime';
+import { ISlug } from './Slug';
 
 export const optional = <T extends t.Any>(
   type: T,
@@ -34,3 +38,12 @@ export const decodeWith = <DataC extends t.Mixed>(codec: DataC) => (
       throw new Error(failure(errors).join('\n'));
     })
   );
+
+export const generateID = () => nanoid() as NonEmptyString;
+
+export const dateToTimestamp = (date: Date) => getUnixTime(date) as IUnixTime;
+
+export const timestampToDate = (timestamp: IUnixTime) => fromUnixTime(timestamp);
+
+// TODO: make it compatible with ISlug regex
+export const stringToSlug = (str: string) => str.replace(/\s+/g, '-').toLowerCase() as ISlug;

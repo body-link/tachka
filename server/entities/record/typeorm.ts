@@ -1,14 +1,16 @@
-import { Column, Entity, Index, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, Index, PrimaryColumn } from 'typeorm';
 import { t } from '@marblejs/middleware-io';
 import { either } from 'fp-ts/Either';
-import { Record, IRecord } from './types';
+import { IRecord, Record } from './types';
 import { isDefined, isNull } from '../../common/type-guards';
+import { map } from 'rxjs/operators';
+import { connection$ } from '../../common/db';
 
 @Entity({
   name: 'record',
 })
 export class RecordEntity {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryColumn('varchar', { length: 128, nullable: false })
   id!: string;
 
   @Column('varchar', { nullable: false })
@@ -30,7 +32,7 @@ export class RecordEntity {
   data!: string;
 }
 
-export interface IRecordEntityFromRecord extends t.Type<RecordEntity, IRecord, unknown> {}
+export interface IRecordEntityFromRecord extends t.Type<RecordEntity, IRecord> {}
 
 export const RecordEntityFromRecord: IRecordEntityFromRecord = new t.Type<
   RecordEntity,
@@ -58,4 +60,8 @@ export const RecordEntityFromRecord: IRecordEntityFromRecord = new t.Type<
     }
     return d;
   }
+);
+
+export const recordRepository$ = connection$.pipe(
+  map((connection) => connection.getRepository(RecordEntity))
 );

@@ -54,6 +54,34 @@ export class IntegrationGoogleClient {
       )
     );
 
+  verify$ = (forScopes: TScope[]) =>
+    combineLatest([
+      this.client$(),
+      this.authState$.pipe(
+        catchErrorToUndefined(),
+        map((authState) => (authState?.data.scopes ?? []) as TScope[])
+      ),
+    ]).pipe(
+      map(([client, currentScopes]) => {
+        const needScopes = forScopes.filter((scope) => !currentScopes.includes(scope));
+        if (needScopes.length > 0) {
+          const authURL = client.generateAuthUrl({
+            access_type: 'offline',
+            scope: [...currentScopes, ...needScopes],
+            state: this.profile,
+          });
+          const instruction = dedent`Profile ${this.profile} needs permissions:
+              ${needScopes.join('\n')}
+
+              Please follow the link: ${authURL}`;
+          throw new ActionableError(ActionableError.ActionType.External, instruction);
+        } else {
+          return client;
+        }
+      }),
+      take(1)
+    );
+
   protected client$ = () =>
     forkJoin([
       IntegrationGoogleClient.state.state$,
@@ -100,34 +128,6 @@ export class IntegrationGoogleClient {
         )
       ),
       shareReplay(1)
-    );
-
-  protected verify$ = (forScopes: TScope[]) =>
-    combineLatest([
-      this.client$(),
-      this.authState$.pipe(
-        catchErrorToUndefined(),
-        map((authState) => (authState?.data.scopes ?? []) as TScope[])
-      ),
-    ]).pipe(
-      map(([client, currentScopes]) => {
-        const needScopes = forScopes.filter((scope) => !currentScopes.includes(scope));
-        if (needScopes.length > 0) {
-          const authURL = client.generateAuthUrl({
-            access_type: 'offline',
-            scope: [...currentScopes, ...needScopes],
-            state: this.profile,
-          });
-          const instruction = dedent`Profile ${this.profile} needs permissions:
-              ${needScopes.join('\n')}
-
-              Please follow the link: ${authURL}`;
-          throw new ActionableError(ActionableError.ActionType.External, instruction);
-        } else {
-          return client;
-        }
-      }),
-      take(1)
     );
 
   protected getAccessToken$ = (forScopes: TScope[]) => {

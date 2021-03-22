@@ -1,9 +1,9 @@
 import { t } from '@marblejs/middleware-io';
-import { integrationDataRepository$ } from '../../common/db';
 import { map, switchMap } from 'rxjs/operators';
 import {
   IntegrationDataEntity,
   IntegrationDataEntityFromIntegrationData,
+  integrationDataRepository$,
 } from '../../entities/integration_data/typeorm';
 import { isDefined } from '../../common/type-guards';
 import { IIntegrationDataRefine } from '../../entities/integration_data/types';

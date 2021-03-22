@@ -1,8 +1,10 @@
 import { Column, Entity, OneToMany, PrimaryColumn } from 'typeorm';
 import { t } from '@marblejs/middleware-io';
 import { either } from 'fp-ts/Either';
-import { IntegrationData, IIntegrationData } from './types';
+import { IIntegrationData, IntegrationData } from './types';
 import { IntegrationAuthEntity } from '../integration_auth/typeorm';
+import { map } from 'rxjs/operators';
+import { connection$ } from '../../common/db';
 
 @Entity({
   name: 'integration_data',
@@ -19,7 +21,7 @@ export class IntegrationDataEntity {
 }
 
 export interface IIntegrationDataEntityFromIntegrationData
-  extends t.Type<IntegrationDataEntity, IIntegrationData, unknown> {}
+  extends t.Type<IntegrationDataEntity, IIntegrationData> {}
 
 export const IntegrationDataEntityFromIntegrationData: IIntegrationDataEntityFromIntegrationData = new t.Type<
   IntegrationDataEntity,
@@ -46,4 +48,8 @@ export const IntegrationDataEntityFromIntegrationData: IIntegrationDataEntityFro
     };
     return d;
   }
+);
+
+export const integrationDataRepository$ = connection$.pipe(
+  map((connection) => connection.getRepository(IntegrationDataEntity))
 );

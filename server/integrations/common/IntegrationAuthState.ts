@@ -1,10 +1,10 @@
 import { t } from '@marblejs/middleware-io';
 import { IntegrationState } from './IntegrationState';
-import { integrationAuthRepository$ } from '../../common/db';
 import { map, switchMap } from 'rxjs/operators';
 import {
   IntegrationAuthEntity,
   IntegrationAuthEntityFromIntegrationAuth,
+  integrationAuthRepository$,
 } from '../../entities/integration_auth/typeorm';
 import { isDefined } from '../../common/type-guards';
 import { IIntegrationAuthRefine } from '../../entities/integration_auth/types';

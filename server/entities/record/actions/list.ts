@@ -5,9 +5,10 @@ import { optional, refine } from '../../../common/io/utils';
 import { Slug } from '../../../common/io/Slug';
 import { UnixTimeFromString } from '../../../common/io/UnixTime';
 import { isDefined } from '../../../common/type-guards';
-import { RecordEntity, RecordEntityFromRecord } from '../typeorm';
-import { recordRepository$ } from '../../../common/db';
+import { RecordEntity, RecordEntityFromRecord, recordRepository$ } from '../typeorm';
 import { map, switchMap } from 'rxjs/operators';
+import { Observable } from 'rxjs';
+import { IRecord } from '../types';
 
 export const recordListOptions = t.type({
   page: optional(
@@ -19,8 +20,8 @@ export const recordListOptions = t.type({
   ),
   limit: optional(
     refine(IntFromString, (x) => {
-      if (x < 2) {
-        return 'must be greater than 1';
+      if (x < 1) {
+        return 'must be greater than 0';
       }
     })
   ),
@@ -36,6 +37,8 @@ export const recordListOptions = t.type({
   to: optional(UnixTimeFromString),
 });
 
+export type TRecordListOptions = t.TypeOf<typeof recordListOptions>;
+
 export const recordList$ = ({
   page,
   limit,
@@ -44,7 +47,7 @@ export const recordList$ = ({
   provider,
   from,
   to,
-}: t.TypeOf<typeof recordListOptions>) => {
+}: TRecordListOptions): Observable<IRecord[]> => {
   const take = isDefined(limit) ? limit : 100;
   const skip = isDefined(page) && page > 1 ? (page - 1) * take : 0;
   const options: FindManyOptions<RecordEntity> = {
