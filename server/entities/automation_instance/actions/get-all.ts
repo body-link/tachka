@@ -1,5 +1,5 @@
 import { Observable } from 'rxjs';
-import { map, switchMap } from 'rxjs/operators';
+import { map, mergeMap } from 'rxjs/operators';
 import {
   AutomationInstanceEntityFromAutomationInstance,
   automationInstanceRepository$,
@@ -8,6 +8,6 @@ import { IAutomationInstance } from '../types';
 
 export const automationInstanceGetAll$ = (): Observable<IAutomationInstance[]> =>
   automationInstanceRepository$.pipe(
-    switchMap((repo) => repo.find()),
+    mergeMap((repo) => repo.find()),
     map((records) => records.map(AutomationInstanceEntityFromAutomationInstance.encode))
   );

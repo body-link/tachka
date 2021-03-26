@@ -31,7 +31,6 @@ export const recordCreate$ = (options: t.TypeOf<typeof recordCreateOptions>) =>
       });
       // TODO: since this is a stream, we need to think about how to rollback changes
       // in case the stream was unsubscribed before finish operation
-      // and change mergeMap to switchMap
       return connection
         .createQueryBuilder()
         .insert()

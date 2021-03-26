@@ -5,12 +5,12 @@ import { google } from 'googleapis';
 import { Credentials } from 'google-auth-library';
 import { nonEmptyArray, NonEmptyString } from 'io-ts-types';
 import { isDefined, isPresent } from '../../common/type-guards';
-import { map, shareReplay, switchMap, take } from 'rxjs/operators';
-import { combineLatest, forkJoin, fromEventPattern, NEVER, Observable } from 'rxjs';
+import { map, mergeMap, mergeMapTo, shareReplay, take } from 'rxjs/operators';
+import { combineLatest, concat, EMPTY, forkJoin, fromEventPattern, Observable, of } from 'rxjs';
 import { IntegrationState } from '../common/IntegrationState';
 import { IntegrationAuthState } from '../common/IntegrationAuthState';
 import { ActionableError } from '../../common/ActionableError';
-import { catchErrorToUndefined, forkDependant } from '../../common/rxjs-utils';
+import { catchErrorToUndefined } from '../../common/rxjs-utils';
 import { ENV } from '../../env';
 
 const ScopesType = t.keyof({
@@ -46,7 +46,7 @@ export class IntegrationGoogleClient {
 
   setCode$ = (code: string) =>
     this.client$().pipe(
-      switchMap((client) =>
+      mergeMap((client) =>
         client.getToken(code).then((s) => {
           client.setCredentials(s.tokens);
           return client;
@@ -108,23 +108,28 @@ export class IntegrationGoogleClient {
           return client;
         }
       ),
-      forkDependant((client) =>
-        fromEventPattern<Credentials>(
-          (handler) => client.on('tokens', handler),
-          (handler) => client.off('tokens', handler)
-        ).pipe(
-          switchMap((credentials) => {
-            const refresh_token = credentials.refresh_token;
-            const scopes = (credentials.scope?.split(' ') ?? []) as TScope[];
-            if (isPresent(refresh_token) && scopes.length > 0) {
-              return IntegrationGoogleClient.authState.setData$(this.profile, {
-                refresh_token,
-                scopes,
-              });
-            } else {
-              return NEVER;
-            }
-          })
+      mergeMap((client) =>
+        concat(
+          of(client),
+          fromEventPattern<Credentials>(
+            (handler) => client.on('tokens', handler),
+            (handler) => client.off('tokens', handler)
+          ).pipe(
+            mergeMap((credentials) => {
+              const refresh_token = credentials.refresh_token;
+              const scopes = (credentials.scope?.split(' ') ?? []) as TScope[];
+              if (isPresent(refresh_token) && scopes.length > 0) {
+                return IntegrationGoogleClient.authState
+                  .setData$(this.profile, {
+                    refresh_token,
+                    scopes,
+                  })
+                  .pipe(mergeMapTo(EMPTY));
+              } else {
+                return EMPTY;
+              }
+            })
+          )
         )
       ),
       shareReplay(1)
@@ -132,7 +137,7 @@ export class IntegrationGoogleClient {
 
   protected getAccessToken$ = (forScopes: TScope[]) => {
     return this.verify$(forScopes).pipe(
-      switchMap((client) =>
+      mergeMap((client) =>
         client
           .getAccessToken()
           .then((v) => v.token)
@@ -152,7 +157,7 @@ export class IntegrationGoogleClient {
 
   protected request$ = <T>(forScopes: TScope[], options: GaxiosOptions): Observable<T> =>
     this.verify$(forScopes).pipe(
-      switchMap((client) => client.request<T>(options)),
+      mergeMap((client) => client.request<T>(options)),
       map((v) => v.data)
     );
 }

@@ -1,6 +1,6 @@
 import { t } from '@marblejs/middleware-io';
 import { IntegrationState } from './IntegrationState';
-import { map, switchMap } from 'rxjs/operators';
+import { map, mergeMap } from 'rxjs/operators';
 import {
   IntegrationAuthEntity,
   IntegrationAuthEntityFromIntegrationAuth,
@@ -35,7 +35,7 @@ export class IntegrationAuthState<
 
   setData$ = (profile: string, data: t.OutputOf<DataAuthC>) =>
     this.getContext$(profile).pipe(
-      switchMap(([entity, repository]) => {
+      mergeMap(([entity, repository]) => {
         if (!isDefined(entity)) {
           entity = new IntegrationAuthEntity();
           entity.integration = this.integrationState.id;
@@ -49,7 +49,7 @@ export class IntegrationAuthState<
 
   private getContext$ = (profile: string) =>
     integrationAuthRepository$.pipe(
-      switchMap((repository) =>
+      mergeMap((repository) =>
         repository
           .findOne({ where: { integration: this.integrationState.id, profile } })
           .then((entity) => [entity, repository] as const)

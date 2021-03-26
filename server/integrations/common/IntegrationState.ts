@@ -1,5 +1,5 @@
 import { t } from '@marblejs/middleware-io';
-import { map, switchMap } from 'rxjs/operators';
+import { map, mergeMap } from 'rxjs/operators';
 import {
   IntegrationDataEntity,
   IntegrationDataEntityFromIntegrationData,
@@ -12,7 +12,7 @@ export const integrationStateReg = new Map<string, IntegrationState<t.Mixed>>();
 
 export class IntegrationState<DataC extends t.Mixed, DataType = t.TypeOf<DataC>> {
   state$ = integrationDataRepository$.pipe(
-    switchMap((repository) => repository.findOne({ where: { id: this.id } })),
+    mergeMap((repository) => repository.findOne({ where: { id: this.id } })),
     map((entity) => {
       if (isDefined(entity)) {
         return this.toObject(entity);
@@ -28,7 +28,7 @@ export class IntegrationState<DataC extends t.Mixed, DataType = t.TypeOf<DataC>>
 
   setData$ = (data: DataType) =>
     integrationDataRepository$.pipe(
-      switchMap((repository) => repository.save({ id: this.id, data: JSON.stringify(data) })),
+      mergeMap((repository) => repository.save({ id: this.id, data: JSON.stringify(data) })),
       map(this.toObject)
     );
 

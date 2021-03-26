@@ -6,7 +6,7 @@ import { Slug } from '../../../common/io/Slug';
 import { UnixTimeFromString } from '../../../common/io/UnixTime';
 import { isDefined } from '../../../common/type-guards';
 import { RecordEntity, RecordEntityFromRecord, recordRepository$ } from '../typeorm';
-import { map, switchMap } from 'rxjs/operators';
+import { map, mergeMap } from 'rxjs/operators';
 import { Observable } from 'rxjs';
 import { IRecord } from '../types';
 
@@ -73,7 +73,7 @@ export const recordList$ = ({
     });
   }
   return recordRepository$.pipe(
-    switchMap((repo) => repo.find(options)),
+    mergeMap((repo) => repo.find(options)),
     map((records) => records.map(RecordEntityFromRecord.encode))
   );
 };
