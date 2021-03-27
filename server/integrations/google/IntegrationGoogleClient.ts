@@ -6,7 +6,16 @@ import { Credentials } from 'google-auth-library';
 import { nonEmptyArray, NonEmptyString } from 'io-ts-types';
 import { isDefined, isPresent } from '../../common/type-guards';
 import { map, mergeMap, mergeMapTo, shareReplay, take } from 'rxjs/operators';
-import { combineLatest, concat, EMPTY, forkJoin, fromEventPattern, Observable, of } from 'rxjs';
+import {
+  combineLatest,
+  concat,
+  EMPTY,
+  forkJoin,
+  fromEventPattern,
+  Observable,
+  of,
+  throwError,
+} from 'rxjs';
 import { IntegrationState } from '../common/IntegrationState';
 import { IntegrationAuthState } from '../common/IntegrationAuthState';
 import { ActionableError } from '../../common/ActionableError';
@@ -72,7 +81,6 @@ export class IntegrationGoogleClient {
           });
           const instruction = dedent`Profile ${this.profile} needs permissions:
               ${needScopes.join('\n')}
-
               Please follow the link: ${authURL}`;
           throw new ActionableError(ActionableError.ActionType.External, instruction);
         } else {
@@ -126,7 +134,12 @@ export class IntegrationGoogleClient {
                   })
                   .pipe(mergeMapTo(EMPTY));
               } else {
-                return EMPTY;
+                dedent`Received insufficient credentials.
+                  Please try to fix it:
+                  1. Remove access for your app: https://myaccount.google.com/permissions
+                  2. Repeat authorization
+                `;
+                return throwError(new ActionableError(ActionableError.ActionType.External, ''));
               }
             })
           )
