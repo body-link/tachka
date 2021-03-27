@@ -1,10 +1,11 @@
 import { t } from '@marblejs/middleware-io';
-import { Json, NonEmptyString } from 'io-ts-types';
+import { Json } from 'io-ts-types';
 import { PositiveInt } from '../../common/io/Positive';
 import { AutomationsRegKeys } from '../../automations/register';
+import { Cron } from '../../common/io/Cron';
 import { optional } from '../../common/io/utils';
 
-export const AutomationInstanceSchedule = t.union([NonEmptyString, t.null, t.literal('ASAP')]);
+export const AutomationInstanceSchedule = t.union([t.null, Cron, t.literal('ASAP')]);
 export type IAutomationInstanceSchedule = t.TypeOf<typeof AutomationInstanceSchedule>;
 
 export const AutomationInstanceCreate = t.type(
