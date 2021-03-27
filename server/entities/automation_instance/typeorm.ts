@@ -4,6 +4,7 @@ import { either } from 'fp-ts/Either';
 import { AutomationInstance, IAutomationInstance } from './types';
 import { map } from 'rxjs/operators';
 import { connection$ } from '../../common/db';
+import { augmentedJSONParse } from '../../common/augmented-json-parse';
 
 @Entity({
   name: 'automation_instance',
@@ -49,7 +50,7 @@ export const AutomationInstanceEntityFromAutomationInstance: IAutomationInstance
   (a) => {
     const d: IAutomationInstance = {
       ...((a as unknown) as IAutomationInstance),
-      options: JSON.parse(a.options),
+      options: augmentedJSONParse(a.options),
     };
     return d;
   }
