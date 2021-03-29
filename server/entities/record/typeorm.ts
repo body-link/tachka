@@ -4,7 +4,7 @@ import { either } from 'fp-ts/Either';
 import { IRecord, Record } from './types';
 import { isDefined, isNull } from '../../common/type-guards';
 import { map } from 'rxjs/operators';
-import { connection$ } from '../../common/db';
+import { connection$ } from '../../config/typeorm';
 
 @Entity({
   name: 'record',

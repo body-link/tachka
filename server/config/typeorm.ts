@@ -1,4 +1,7 @@
+import { createConnection } from 'typeorm';
 import { MysqlConnectionOptions } from 'typeorm/driver/mysql/MysqlConnectionOptions';
+import { defer } from 'rxjs';
+import { shareReplay } from 'rxjs/operators';
 import { ENV, getEnvMySQL_URL } from './env';
 
 const options: MysqlConnectionOptions = {
@@ -17,4 +20,7 @@ const options: MysqlConnectionOptions = {
   },
 };
 
+// Needs to be here for TypeORM CLI tools
 export default options;
+
+export const connection$ = defer(() => createConnection(options)).pipe(shareReplay(1));

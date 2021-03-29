@@ -3,8 +3,8 @@ import { t } from '@marblejs/middleware-io';
 import { either } from 'fp-ts/Either';
 import { AutomationInstance, IAutomationInstance } from './types';
 import { map } from 'rxjs/operators';
-import { connection$ } from '../../common/db';
 import { augmentedJSONParse } from '../../common/augmented-json-parse';
+import { connection$ } from '../../config/typeorm';
 
 @Entity({
   name: 'automation_instance',

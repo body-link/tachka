@@ -1,13 +1,13 @@
 import { t } from '@marblejs/middleware-io';
 import { mergeMap } from 'rxjs/operators';
 import { nonEmptyArray } from 'io-ts-types';
-import { connection$ } from '../../../common/db';
 import { RecordEntity, RecordEntityFromRecord } from '../typeorm';
 import { Record } from '../types';
 import { decodeWith } from '../../../common/io/utils';
 import { getBuiltInBucket } from '../../../buckets/manager';
 import { isDefined, isError } from '../../../common/type-guards';
 import dedent from 'ts-dedent';
+import { connection$ } from '../../../config/typeorm';
 
 export const recordCreateOptions = nonEmptyArray(Record);
 

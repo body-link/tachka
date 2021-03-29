@@ -20,7 +20,7 @@ import { IntegrationState } from '../common/IntegrationState';
 import { IntegrationAuthState } from '../common/IntegrationAuthState';
 import { ActionableError } from '../../common/ActionableError';
 import { catchErrorToUndefined } from '../../common/rxjs-utils';
-import { ENV } from '../../env';
+import { ENV } from '../../config/env';
 
 const ScopesType = t.keyof({
   'https://www.googleapis.com/auth/userinfo.email': null,

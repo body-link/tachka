@@ -7,7 +7,7 @@
   "scripts": {
     "start": "ts-node-transpile-only --dir server index.ts",
     "start:prod": "cross-env NODE_ENV=production npm start",
-    "typeorm": "ts-node-transpile-only --dir server ../node_modules/typeorm/cli.js -f server/ormconfig"
+    "typeorm": "ts-node-transpile-only --dir server ../node_modules/typeorm/cli.js -f server/config/typeorm"
   },
   "dependencies": {
     "@marblejs/core": "^3.4.9",
@@ -15,6 +15,7 @@
     "@marblejs/middleware-io": "^3.4.9",
     "@marblejs/middleware-logger": "^3.4.9",
     "ajv": "^6.12.6",
+    "cookie": "^0.4.1",
     "cross-env": "^7.0.3",
     "date-fns": "^2.19.0",
     "dotenv": "^8.2.0",
@@ -37,6 +38,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.12.10",
+    "@types/cookie": "^0.4.0",
     "@types/node": "^14.14.33",
     "@types/node-cron": "^2.0.3",
     "@types/node-fetch": "^2.5.8",

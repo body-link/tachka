@@ -1,5 +1,5 @@
 import * as dotenv from 'dotenv';
-import { isDefined } from './common/type-guards';
+import { isDefined } from '../common/type-guards';
 
 dotenv.config({ path: `${__dirname}/.env` });
 

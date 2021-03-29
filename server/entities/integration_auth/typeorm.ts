@@ -4,7 +4,7 @@ import { either } from 'fp-ts/Either';
 import { IIntegrationAuth, IntegrationAuth } from './types';
 import { IntegrationDataEntity } from '../integration_data/typeorm';
 import { map } from 'rxjs/operators';
-import { connection$ } from '../../common/db';
+import { connection$ } from '../../config/typeorm';
 
 @Entity({
   name: 'integration_auth',
