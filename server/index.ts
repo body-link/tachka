@@ -3,6 +3,7 @@ import { readFileSync } from 'fs';
 import nodeFetch from 'node-fetch';
 import { createServer, httpListener, ServerOptions } from '@marblejs/core';
 import { logger$ } from '@marblejs/middleware-logger';
+import { cors$ } from '@marblejs/middleware-cors';
 import { bodyParser$ } from '@marblejs/middleware-body';
 import { api$ } from './api';
 import { ENV } from './config/env';
@@ -17,7 +18,16 @@ if (isUndefined(globalThis.fetch)) {
 }
 
 const serverOptions: ServerOptions = {};
-const middlewares = [bodyParser$()];
+const middlewares = [
+  cors$({
+    origin: '*',
+    methods: ['GET', 'POST'],
+    allowHeaders: ['Origin', 'Authorization', 'Content-Type'],
+    withCredentials: true,
+    maxAge: 60 * 60 * 24, // 1 day
+  }),
+  bodyParser$(),
+];
 
 if (ENV.isDev) {
   serverOptions.httpsOptions = {

@@ -5,6 +5,7 @@ import { HttpError, HttpStatus, r } from '@marblejs/core';
 import { map } from 'rxjs/operators';
 import { authorize$ } from '../middlewares';
 import { getEnvSecret } from '../../config/env';
+import { toBody } from '../../common/utils';
 
 const validateRequestLogin = requestValidator$({
   body: t.type({
@@ -30,10 +31,11 @@ export const loginEffect$ = r.pipe(
               maxAge: 60 * 60 * 24 * 7, // 1 week
             })
           );
-          return {};
+          return;
         }
         throw new HttpError('Invalid credentials', HttpStatus.UNAUTHORIZED);
-      })
+      }),
+      toBody
     )
   )
 );
@@ -54,8 +56,8 @@ export const logoutEffect$ = r.pipe(
             expires: new Date(0),
           })
         );
-        return {};
-      })
+      }),
+      toBody
     )
   )
 );

@@ -12,6 +12,7 @@
   "dependencies": {
     "@marblejs/core": "^3.4.9",
     "@marblejs/middleware-body": "^3.4.9",
+    "@marblejs/middleware-cors": "^3.4.9",
     "@marblejs/middleware-io": "^3.4.9",
     "@marblejs/middleware-logger": "^3.4.9",
     "ajv": "^6.12.6",
