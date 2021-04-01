@@ -1,5 +1,6 @@
 import * as cron from 'node-cron';
-import { tap } from 'rxjs/operators';
+import { of } from 'rxjs';
+import { map, mergeMap, tap } from 'rxjs/operators';
 import { TAutomationInstanceID } from './types';
 import { Automation } from './common/Automation';
 import { isDefined, isError, isNotNull } from '../common/type-guards';
@@ -9,9 +10,9 @@ import {
   IAutomationInstanceUpdate,
 } from '../entities/automation_instance/types';
 import { automationInstanceGetAll$ } from '../entities/automation_instance/actions/get-all';
-import { automationInstanceCreate$ } from '../entities/automation_instance/actions/create';
 import { automationInstanceSave$ } from '../entities/automation_instance/actions/save';
-import { getAutomation } from './register';
+import { getAutomation, getAutomationSchemaOptions } from './register';
+import { TOption } from '../common/type-utils';
 
 const automations = new Map<TAutomationInstanceID, Automation>();
 const automationItems = new Map<TAutomationInstanceID, IAutomationInstance>();
@@ -28,51 +29,81 @@ export const runAutomationInstance = (id: TAutomationInstanceID) => {
   }
 };
 
-export const getAutomationInstanceStatus = () =>
-  Array.from(automations.entries()).map(([id, automation]) => {
-    const state = automation.state$.getValue();
-    const status = isError(state) ? `Error:\n${state.message}` : state ? 'working' : 'stopped';
-    return { id, name: automation.name, status };
-  });
+export const getAutomationInstanceStatus$ = () =>
+  automationInstanceGetAll$().pipe(
+    map((items) => {
+      const extension = Array.from(automations.entries()).reduce<
+        Record<number, { status: string; error: TOption<string> }>
+      >((acc, [id, automation]) => {
+        const state = automation.state$.getValue();
+        acc[id] = {
+          status: isError(state) ? 'crashed' : state ? 'working' : 'stopped',
+          error: isError(state) ? state.message : undefined,
+        };
+        return acc;
+      }, {});
+      return items.map((item) => ({ ...item, ...extension[item.id] }));
+    })
+  );
 
 export const createAutomationInstance$ = (payload: IAutomationInstanceCreate) =>
-  automationInstanceCreate$(payload).pipe(tap(init));
+  of(payload.automation).pipe(
+    map(getAutomationSchemaOptions),
+    mergeMap((schemaOptions) =>
+      automationInstanceSave$({
+        ...payload,
+        options: schemaOptions.decode(payload.options),
+      })
+    ),
+    tap(init)
+  );
 
 export const updateAutomationInstance$ = ({
   id,
-  options,
+  options: rawOptions,
   schedule,
   isOn,
-}: IAutomationInstanceUpdate) => {
-  const prevItem = automationItems.get(id);
-  const patchItem: Partial<IAutomationInstance> = { id, options };
-  if (isDefined(schedule) && schedule !== prevItem?.schedule) {
-    patchItem.schedule = schedule;
-  }
-  if (isDefined(isOn) && isOn !== prevItem?.isOn) {
-    patchItem.isOn = isOn;
-  }
-  return automationInstanceSave$(patchItem).pipe(
-    tap((nextItem) => {
-      automationItems.set(id, nextItem);
-      if (isDefined(patchItem.isOn)) {
-        terminateInstance(id);
-        terminateTask(id);
-        initInstance(id);
-        initTask(id);
-      } else {
-        if (isDefined(patchItem.options)) {
-          terminateInstance(id);
-          initInstance(id);
-        }
-        if (isDefined(patchItem.schedule)) {
-          terminateTask(id);
-          initTask(id);
-        }
+}: IAutomationInstanceUpdate) =>
+  of(automationItems.get(id)).pipe(
+    map((prevItem) => {
+      if (!isDefined(prevItem)) {
+        throw new Error(`Automation ID ${id} wasn't found`);
       }
-    })
+      const patchItem: Partial<IAutomationInstance> = { id };
+      if (isDefined(schedule) && schedule !== prevItem.schedule) {
+        patchItem.schedule = schedule;
+      }
+      if (isDefined(isOn) && isOn !== prevItem.isOn) {
+        patchItem.isOn = isOn;
+      }
+      if (isDefined(rawOptions)) {
+        patchItem.options = getAutomationSchemaOptions(prevItem.automation).decode(rawOptions);
+      }
+      return patchItem;
+    }),
+    mergeMap((patchItem) =>
+      automationInstanceSave$(patchItem).pipe(
+        tap((nextItem) => {
+          automationItems.set(id, nextItem);
+          if (isDefined(patchItem.isOn)) {
+            terminateInstance(id);
+            terminateTask(id);
+            initInstance(id);
+            initTask(id);
+          } else {
+            if (isDefined(patchItem.options)) {
+              terminateInstance(id);
+              initInstance(id);
+            }
+            if (isDefined(patchItem.schedule)) {
+              terminateTask(id);
+              initTask(id);
+            }
+          }
+        })
+      )
+    )
   );
-};
 
 const init = (item: IAutomationInstance) => {
   const id = item.id;
@@ -85,7 +116,7 @@ const initInstance = (id: TAutomationInstanceID) => {
   const item = automationItems.get(id);
   if (isDefined(item) && item.isOn) {
     const AutomationLike = getAutomation(item.automation);
-    const automation = new AutomationLike(item.options as never);
+    const automation = new AutomationLike(item.options);
     automations.set(id, automation);
   }
 };

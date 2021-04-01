@@ -9,6 +9,7 @@ import {
   managerStatusEffect$,
   managerCreateEffect$,
   managerStartEffect$,
+  managerUpdateEffect$,
 } from './internal/automation/manager.effects';
 
 export const api$ = combineRoutes('/', [
@@ -25,6 +26,7 @@ export const api$ = combineRoutes('/', [
           managerStatusEffect$,
           managerStartEffect$,
           managerCreateEffect$,
+          managerUpdateEffect$,
         ]),
       ],
       middlewares: [authorize$],

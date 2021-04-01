@@ -1,7 +1,5 @@
-// WARNING!
-// Each value must be compatible with ISlug type
-export enum EAutomation {
-  AutomationGooglePhotosFood = 'automation-google-photos-food',
-}
+import { Automation } from './common/Automation';
 
 export type TAutomationInstanceID = number;
+
+export type TAutomationLike<T = unknown> = new (options: T) => Automation<T>;

@@ -15,6 +15,10 @@ export class RecordEntity {
 
   @Column('varchar', { nullable: false })
   @Index()
+  group!: string;
+
+  @Column('varchar', { nullable: false })
+  @Index()
   bucket!: string;
 
   @Column('varchar', { nullable: false })

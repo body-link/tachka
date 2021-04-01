@@ -8,6 +8,7 @@ import { UTCOffset } from '../../common/io/UTCOffset';
 export const Record = t.type(
   {
     id: NonEmptyString,
+    group: Slug,
     bucket: Slug,
     provider: Slug,
     timestamp: UnixTime,

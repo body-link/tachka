@@ -1,11 +1,13 @@
 import * as Ajv from 'ajv';
+import dedent from 'ts-dedent';
 import { t } from '@marblejs/middleware-io';
 import { success, failure } from 'io-ts';
-import { JsonRecord, JsonFromString } from 'io-ts-types';
+import { Json, JsonFromString } from 'io-ts-types';
 import { JSONSchema7 } from 'json-schema';
-import { decodeWith } from '../../common/io/utils';
+import { decodeWith } from '../common/io/utils';
+import { isText } from '../common/type-guards';
 
-export class Bucket<T = JsonRecord> {
+export class Schema<T = Json> {
   readonly is: (u: unknown) => u is T;
   readonly decode: (u: unknown) => T;
   readonly type: t.Type<T>;
@@ -13,9 +15,10 @@ export class Bucket<T = JsonRecord> {
   private readonly validate = new Ajv({ verbose: true }).compile(this.JSONSchema);
 
   constructor(public readonly name: string, public readonly JSONSchema: JSONSchema7) {
-    this.is = (u): u is T => JsonRecord.is(u) && (this.validate(u) as boolean);
+    const typeName = `JSONSchema7${name}`;
+    this.is = (u): u is T => Json.is(u) && (this.validate(u) as boolean);
     this.type = new t.Type(
-      this.name,
+      typeName,
       this.is,
       (u, c) =>
         this.is(u)
@@ -24,14 +27,22 @@ export class Bucket<T = JsonRecord> {
               u,
               c,
               (this.validate.errors ?? [])
-                .map((err) => `Path ${err.dataPath} value ${err.data} ${err.message}`)
+                .map(
+                  (err) => dedent`
+                    ${isText(err.dataPath) ? `Value on path ${err.dataPath}` : 'Root value'} ${
+                    err.message
+                  }
+                    Invalid value:
+                    ${JSON.stringify(err.data, undefined, 2)}
+                  `
+                )
                 .join('\n')
             ),
       t.identity
     );
     this.typeFromString = JsonFromString.pipe(
-      (this.type as unknown) as t.Type<T, JsonRecord>,
-      `${this.name}FromString`
+      (this.type as unknown) as t.Type<T, Json>,
+      `${typeName}FromString`
     );
     this.decode = decodeWith(this.type);
   }

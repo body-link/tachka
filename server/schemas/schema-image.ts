@@ -1,6 +1,6 @@
-import { Bucket } from '../common/Bucket';
+import { Schema } from './Schema';
 
-export interface IBucketImage {
+export interface ISchemaImage {
   id: string;
   url: string;
   width: number;
@@ -8,7 +8,7 @@ export interface IBucketImage {
   source?: string;
 }
 
-export const bucketImage = new Bucket<IBucketImage>('image', {
+export const schemaImage = new Schema<ISchemaImage>('Image', {
   definitions: {},
   $schema: 'http://json-schema.org/draft-07/schema#',
   $id: 'https://example.com/object1616472389.json',

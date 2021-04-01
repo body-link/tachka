@@ -1,7 +1,8 @@
 import { BehaviorSubject, concat, Observable, of, Unsubscribable } from 'rxjs';
 import { catchError, exhaustMap, last, mapTo, takeUntil } from 'rxjs/operators';
 import { ca } from '../../common/action-helpers';
-import { EAutomation } from '../types';
+import { Schema } from '../../schemas/Schema';
+import { EAutomation, getAutomationSchemaOptions } from '../register';
 
 export abstract class Automation<TOptions = unknown> implements Unsubscribable {
   readonly state$ = new BehaviorSubject<Error | boolean>(false);
@@ -21,6 +22,10 @@ export abstract class Automation<TOptions = unknown> implements Unsubscribable {
       )
     )
   ).subscribe((state) => this.state$.next(state));
+
+  get schemaOptions(): Schema<TOptions> {
+    return getAutomationSchemaOptions(this.name);
+  }
 
   abstract readonly name: EAutomation;
   abstract readonly work$: Observable<unknown>;

@@ -4,16 +4,20 @@ import { toBody } from '../../../common/utils';
 import { requestValidator$, t } from '@marblejs/middleware-io';
 import {
   createAutomationInstance$,
-  getAutomationInstanceStatus,
+  getAutomationInstanceStatus$,
   runAutomationInstance,
+  updateAutomationInstance$,
 } from '../../../automations/manager';
 import { PositiveInt } from '../../../common/io/Positive';
-import { AutomationInstanceCreate } from '../../../entities/automation_instance/types';
+import {
+  AutomationInstanceCreate,
+  AutomationInstanceUpdate,
+} from '../../../entities/automation_instance/types';
 
 export const managerStatusEffect$ = r.pipe(
   r.matchPath('/status'),
   r.matchType('GET'),
-  r.useEffect((req$) => req$.pipe(map(getAutomationInstanceStatus), toBody))
+  r.useEffect((req$) => req$.pipe(mergeMap(getAutomationInstanceStatus$), toBody))
 );
 
 const validateRequestStart = requestValidator$({
@@ -45,6 +49,22 @@ export const managerCreateEffect$ = r.pipe(
     req$.pipe(
       validateRequestCreate,
       mergeMap((req) => createAutomationInstance$(req.body)),
+      toBody
+    )
+  )
+);
+
+const validateRequestUpdate = requestValidator$({
+  body: AutomationInstanceUpdate,
+});
+
+export const managerUpdateEffect$ = r.pipe(
+  r.matchPath('/update'),
+  r.matchType('POST'),
+  r.useEffect((req$) =>
+    req$.pipe(
+      validateRequestUpdate,
+      mergeMap((req) => updateAutomationInstance$(req.body)),
       toBody
     )
   )

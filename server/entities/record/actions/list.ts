@@ -31,6 +31,7 @@ export const recordListOptions = t.type({
       '-timestamp': null,
     })
   ),
+  group: optional(Slug),
   bucket: optional(Slug),
   provider: optional(Slug),
   from: optional(UnixTimeFromString),
@@ -43,6 +44,7 @@ export const recordList$ = ({
   page,
   limit,
   order,
+  group,
   bucket,
   provider,
   from,
@@ -58,6 +60,9 @@ export const recordList$ = ({
     },
     where: {},
   };
+  if (isDefined(group)) {
+    Object.assign(options.where, { group: Equal(group) });
+  }
   if (isDefined(bucket)) {
     Object.assign(options.where, { bucket: Equal(bucket) });
   }

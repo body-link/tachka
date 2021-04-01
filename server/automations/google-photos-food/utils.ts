@@ -1,7 +1,7 @@
-import { IBucketImage } from '../../buckets/build-in/image';
+import { ISchemaImage } from '../../schemas/schema-image';
 import { IGoogleMediaItem } from '../../integrations/google/IntegrationGooglePhotos';
 
-export const toData = (item: IGoogleMediaItem): IBucketImage => {
+export const toData = (item: IGoogleMediaItem): ISchemaImage => {
   const size = {
     width: parseInt(item.mediaMetadata.width),
     height: parseInt(item.mediaMetadata.height),

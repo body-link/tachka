@@ -4,7 +4,7 @@ import { nonEmptyArray } from 'io-ts-types';
 import { RecordEntity, RecordEntityFromRecord } from '../typeorm';
 import { Record } from '../types';
 import { decodeWith } from '../../../common/io/utils';
-import { getBuiltInBucket } from '../../../buckets/manager';
+import { getBuiltInBucket } from '../../../buckets/built-in/register';
 import { isDefined, isError } from '../../../common/type-guards';
 import dedent from 'ts-dedent';
 import { connection$ } from '../../../config/typeorm';

@@ -46,14 +46,11 @@ module.exports = {
           },
         ],
         'object-shorthand': 'warn',
-        'no-shadow': [
-          'error',
-          {
-            allow: ['style'],
-          },
-        ],
+        'no-shadow': 'off',
+        '@typescript-eslint/no-shadow': ['error'],
         'jsx-a11y/accessible-emoji': 'off',
         'jsx-a11y/alt-text': 'off',
+        'react-hooks/rules-of-hooks': 'off',
       },
     },
   ],
