@@ -15,3 +15,8 @@ export type TNoop = () => void;
 export type TMutable<T> = {
   -readonly [P in keyof T]: T[P];
 };
+
+export interface IResultsWithCount<T> {
+  count: number;
+  results: T[];
+}

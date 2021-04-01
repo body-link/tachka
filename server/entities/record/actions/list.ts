@@ -9,6 +9,7 @@ import { RecordEntity, RecordEntityFromRecord, recordRepository$ } from '../type
 import { map, mergeMap } from 'rxjs/operators';
 import { Observable } from 'rxjs';
 import { IRecord } from '../types';
+import { IResultsWithCount } from '../../../common/type-utils';
 
 export const recordListOptions = t.type({
   page: optional(
@@ -40,7 +41,27 @@ export const recordListOptions = t.type({
 
 export type TRecordListOptions = t.TypeOf<typeof recordListOptions>;
 
-export const recordList$ = ({
+export const recordList$ = (options: TRecordListOptions): Observable<IRecord[]> => {
+  return recordRepository$.pipe(
+    mergeMap((repo) => repo.find(createFindManyOptions(options))),
+    map((records) => records.map(RecordEntityFromRecord.encode))
+  );
+};
+
+export const recordCount$ = (options: TRecordListOptions): Observable<number> => {
+  return recordRepository$.pipe(mergeMap((repo) => repo.count(createFindManyOptions(options))));
+};
+
+export const recordListWithCount$ = (
+  options: TRecordListOptions
+): Observable<IResultsWithCount<IRecord>> => {
+  return recordRepository$.pipe(
+    mergeMap((repo) => repo.findAndCount(createFindManyOptions(options))),
+    map(([results, count]) => ({ count, results: results.map(RecordEntityFromRecord.encode) }))
+  );
+};
+
+const createFindManyOptions = ({
   page,
   limit,
   order,
@@ -49,7 +70,7 @@ export const recordList$ = ({
   provider,
   from,
   to,
-}: TRecordListOptions): Observable<IRecord[]> => {
+}: TRecordListOptions): FindManyOptions<RecordEntity> => {
   const take = isDefined(limit) ? limit : 100;
   const skip = isDefined(page) && page > 1 ? (page - 1) * take : 0;
   const options: FindManyOptions<RecordEntity> = {
@@ -77,8 +98,5 @@ export const recordList$ = ({
       timestamp: isDefined(from) ? Between(from, to) : LessThanOrEqual(to),
     });
   }
-  return recordRepository$.pipe(
-    mergeMap((repo) => repo.find(options)),
-    map((records) => records.map(RecordEntityFromRecord.encode))
-  );
+  return options;
 };

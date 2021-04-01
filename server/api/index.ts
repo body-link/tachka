@@ -1,6 +1,10 @@
 import { combineRoutes } from '@marblejs/core';
 import { authorize$ } from './middlewares';
-import { recordListEffect$ } from './external/record/list.effect';
+import {
+  recordCountEffect$,
+  recordListEffect$,
+  recordListWithCountEffect$,
+} from './external/record/list.effect';
 import { recordCreateEffect$ } from './external/record/create.effect';
 import { loginEffect$, logoutEffect$ } from './internal/auth.effects';
 import { googleOAuth2CallbackEffect$ } from './custom/googleOAuth2Callback.effect';
@@ -34,7 +38,14 @@ export const api$ = combineRoutes('/', [
     combineRoutes('/custom', [googleOAuth2CallbackEffect$]),
   ]),
   combineRoutes('/api/v1', {
-    effects: [combineRoutes('/record', [recordListEffect$, recordCreateEffect$])],
+    effects: [
+      combineRoutes('/record', [
+        recordListEffect$,
+        recordCountEffect$,
+        recordListWithCountEffect$,
+        recordCreateEffect$,
+      ]),
+    ],
     middlewares: [authorize$],
   }),
 ]);
