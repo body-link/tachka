@@ -15,6 +15,7 @@ import {
   managerStartEffect$,
   managerUpdateEffect$,
 } from './internal/automation/manager.effects';
+import { recordGetByIDEffect$, recordGetByIDsEffect$ } from './external/record/get-by-id.effect';
 
 export const api$ = combineRoutes('/', [
   combineRoutes('/', [
@@ -40,6 +41,8 @@ export const api$ = combineRoutes('/', [
   combineRoutes('/api/v1', {
     effects: [
       combineRoutes('/record', [
+        recordGetByIDEffect$,
+        recordGetByIDsEffect$,
         recordListEffect$,
         recordCountEffect$,
         recordListWithCountEffect$,

@@ -57,7 +57,7 @@ export const recordListWithCount$ = (
 ): Observable<IResultsWithCount<IRecord>> => {
   return recordRepository$.pipe(
     mergeMap((repo) => repo.findAndCount(createFindManyOptions(options))),
-    map(([results, count]) => ({ count, results: results.map(RecordEntityFromRecord.encode) }))
+    map(([records, count]) => ({ count, results: records.map(RecordEntityFromRecord.encode) }))
   );
 };
 
