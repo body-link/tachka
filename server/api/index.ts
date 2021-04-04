@@ -10,12 +10,14 @@ import { loginEffect$, logoutEffect$ } from './internal/auth.effects';
 import { googleOAuth2CallbackEffect$ } from './custom/googleOAuth2Callback.effect';
 import { integrationDataSetEffect$ } from './internal/integration/data.effects';
 import {
-  managerStatusEffect$,
   managerCreateEffect$,
   managerStartEffect$,
+  managerStatusEffect$,
   managerUpdateEffect$,
 } from './internal/automation/manager.effects';
-import { recordGetByIDEffect$, recordGetByIDsEffect$ } from './external/record/get-by-id.effect';
+import { recordGetByIDEffect$ } from './external/record/get-by-id.effect';
+import { recordUpdateEffect$ } from './external/record/update.effect';
+import { recordRemoveByIDEffect$ } from './external/record/remove-by-id.effect';
 
 export const api$ = combineRoutes('/', [
   combineRoutes('/', [
@@ -42,11 +44,12 @@ export const api$ = combineRoutes('/', [
     effects: [
       combineRoutes('/record', [
         recordGetByIDEffect$,
-        recordGetByIDsEffect$,
         recordListEffect$,
         recordCountEffect$,
         recordListWithCountEffect$,
         recordCreateEffect$,
+        recordUpdateEffect$,
+        recordRemoveByIDEffect$,
       ]),
     ],
     middlewares: [authorize$],

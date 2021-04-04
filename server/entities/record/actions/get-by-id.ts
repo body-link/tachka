@@ -1,20 +1,14 @@
-import { t } from '@marblejs/middleware-io';
-import { map, mergeMap } from 'rxjs/operators';
-import { nonEmptyArray, NonEmptyString } from 'io-ts-types';
+import { mergeMap } from 'rxjs/operators';
 import { RecordEntityFromRecord, recordRepository$ } from '../typeorm';
+import { TRecordID } from '../types';
+import { NonEmptyArray } from 'fp-ts/NonEmptyArray';
+import { isArray } from '../../../common/type-guards';
 
-export const recordGetByIDOptions = NonEmptyString;
-
-export const recordGetByID$ = (options: t.TypeOf<typeof recordGetByIDOptions>) =>
+export const recordGetByID$ = (recordID: TRecordID | NonEmptyArray<TRecordID>) =>
   recordRepository$.pipe(
-    mergeMap((repo) => repo.findOneOrFail(options)),
-    map(RecordEntityFromRecord.encode)
-  );
-
-export const recordGetByIDsOptions = nonEmptyArray(NonEmptyString);
-
-export const recordGetByIDs$ = (options: t.TypeOf<typeof recordGetByIDsOptions>) =>
-  recordRepository$.pipe(
-    mergeMap((repo) => repo.findByIds(options)),
-    map((records) => records.map(RecordEntityFromRecord.encode))
+    mergeMap((repo) =>
+      isArray(recordID)
+        ? repo.findByIds(recordID).then((records) => records.map(RecordEntityFromRecord.encode))
+        : repo.findOneOrFail(recordID).then(RecordEntityFromRecord.encode)
+    )
   );
