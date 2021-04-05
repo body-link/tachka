@@ -1,8 +1,11 @@
 import * as A from 'fp-ts/lib/Array';
-import { IntegrationGooglePhotos } from '../../integrations/google/IntegrationGooglePhotos';
+import {
+  IGoogleMediaItem,
+  IntegrationGooglePhotos,
+} from '../../integrations/google/IntegrationGooglePhotos';
 import { filter, map, mapTo, mergeMap } from 'rxjs/operators';
 import { recordCreate$, recordCreateOptions } from '../../entities/record/actions/create';
-import { dateToTimestamp, decodeWith, generateID, timestampToDate } from '../../common/io/utils';
+import { dateToTimestamp, decodeWith, timestampToDate } from '../../common/io/utils';
 import { Automation } from '../common/Automation';
 import { toData } from './utils';
 import { recordList$, TRecordListOptions } from '../../entities/record/actions/list';
@@ -40,7 +43,7 @@ export class AutomationGooglePhotosFood extends Automation<ISchemaAutomationGoog
         items.map((item) => {
           const date = new Date(item.mediaMetadata.creationTime);
           return {
-            id: generateID(),
+            id: getItemID(item),
             group: this.options.recordGroup,
             bucket: EBuiltInBucket.PhotosFood,
             provider: this.name,
@@ -56,3 +59,5 @@ export class AutomationGooglePhotosFood extends Automation<ISchemaAutomationGoog
       debug(this.name)
     );
 }
+
+const getItemID = (item: IGoogleMediaItem) => `AuGPF__${item.id}`;
