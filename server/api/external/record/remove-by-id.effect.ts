@@ -2,7 +2,7 @@ import { r } from '@marblejs/core';
 import { mergeMap } from 'rxjs/operators';
 import { requestValidator$, t } from '@marblejs/middleware-io';
 import { toBody } from '../../../common/utils';
-import { recordRemoveByID$ } from '../../../entities/record/actions/Remove-by-id';
+import { recordRemoveByID$ } from '../../../entities/record/actions/remove-by-id';
 import { nonEmptyArray, NonEmptyString } from 'io-ts-types';
 
 const validateRemoveByIDRequest = requestValidator$({
