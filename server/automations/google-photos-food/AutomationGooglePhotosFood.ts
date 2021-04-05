@@ -45,7 +45,7 @@ export class AutomationGooglePhotosFood extends Automation<ISchemaAutomationGoog
             bucket: EBuiltInBucket.PhotosFood,
             provider: this.name,
             timestamp: dateToTimestamp(date),
-            offset: 0,
+            offset: null,
             data: toData(item),
           };
         })

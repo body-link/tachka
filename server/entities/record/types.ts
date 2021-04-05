@@ -14,7 +14,7 @@ export const Record = t.type(
     bucket: Slug,
     provider: Slug,
     timestamp: UnixTime,
-    offset: optional(UTCOffset),
+    offset: t.union([UTCOffset, t.null]),
     data: Json,
   },
   'Record'
@@ -31,7 +31,7 @@ export const RecordUpdate = t.type(
     bucket: optional(Slug),
     provider: optional(Slug),
     timestamp: optional(UnixTime),
-    offset: optional(UTCOffset),
+    offset: optional(t.union([UTCOffset, t.null])),
     data: optional(Json),
   },
   'RecordUpdate'
