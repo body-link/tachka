@@ -1,11 +1,13 @@
-import * as cookie from 'cookie';
 import { NonEmptyString } from 'io-ts-types';
 import { requestValidator$, t } from '@marblejs/middleware-io';
 import { HttpError, HttpStatus, r } from '@marblejs/core';
-import { map } from 'rxjs/operators';
-import { authorize$ } from '../middlewares';
+import { map, mergeMap } from 'rxjs/operators';
 import { getEnvSecret } from '../../config/env';
 import { toBody } from '../../common/utils';
+import { generateClientToken$, removeToken$ } from '../../entities/token/actions';
+import { authorizeClient$ } from '../../entities/token/middlewares';
+import { parseAuthorizationHeader } from '../../entities/token/utils';
+import { noop } from 'rxjs';
 
 const validateRequestLogin = requestValidator$({
   body: t.type({
@@ -19,22 +21,14 @@ export const loginEffect$ = r.pipe(
   r.useEffect((req$) =>
     req$.pipe(
       validateRequestLogin,
-      map((req) => {
+      mergeMap((req) => {
         const secret = getEnvSecret();
         if (secret === req.body.secret) {
-          req.response.setHeader(
-            'Set-Cookie',
-            cookie.serialize('token', secret, {
-              secure: true,
-              httpOnly: true,
-              sameSite: 'strict',
-              maxAge: 60 * 60 * 24 * 7, // 1 week
-            })
-          );
-          return;
+          return generateClientToken$();
         }
         throw new HttpError('Invalid credentials', HttpStatus.UNAUTHORIZED);
       }),
+      map((token) => ({ token })),
       toBody
     )
   )
@@ -43,21 +37,8 @@ export const loginEffect$ = r.pipe(
 export const logoutEffect$ = r.pipe(
   r.matchPath('/logout'),
   r.matchType('POST'),
-  r.use(authorize$),
+  r.use(authorizeClient$),
   r.useEffect((req$) =>
-    req$.pipe(
-      map((req) => {
-        req.response.setHeader(
-          'Set-Cookie',
-          cookie.serialize('token', '', {
-            secure: true,
-            httpOnly: true,
-            sameSite: 'strict',
-            expires: new Date(0),
-          })
-        );
-      }),
-      toBody
-    )
+    req$.pipe(map(parseAuthorizationHeader), mergeMap(removeToken$), map(noop), toBody)
   )
 );

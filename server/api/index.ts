@@ -1,5 +1,4 @@
 import { combineRoutes } from '@marblejs/core';
-import { authorize$ } from './middlewares';
 import {
   recordCountEffect$,
   recordListEffect$,
@@ -18,6 +17,7 @@ import {
 import { recordGetByIDEffect$ } from './external/record/get-by-id.effect';
 import { recordUpdateEffect$ } from './external/record/update.effect';
 import { recordRemoveByIDEffect$ } from './external/record/remove-by-id.effect';
+import { authorizeAny$, authorizeClient$ } from '../entities/token/middlewares';
 
 export const api$ = combineRoutes('/', [
   combineRoutes('/', [
@@ -25,7 +25,7 @@ export const api$ = combineRoutes('/', [
     logoutEffect$,
     combineRoutes('/integration', {
       effects: [combineRoutes('/data', [integrationDataSetEffect$])],
-      middlewares: [authorize$],
+      middlewares: [authorizeClient$],
     }),
     combineRoutes('/automation', {
       effects: [
@@ -36,7 +36,7 @@ export const api$ = combineRoutes('/', [
           managerUpdateEffect$,
         ]),
       ],
-      middlewares: [authorize$],
+      middlewares: [authorizeClient$],
     }),
     combineRoutes('/custom', [googleOAuth2CallbackEffect$]),
   ]),
@@ -52,6 +52,6 @@ export const api$ = combineRoutes('/', [
         recordRemoveByIDEffect$,
       ]),
     ],
-    middlewares: [authorize$],
+    middlewares: [authorizeAny$],
   }),
 ]);
