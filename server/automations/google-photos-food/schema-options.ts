@@ -10,10 +10,7 @@ export interface ISchemaAutomationGooglePhotosFoodOptions {
 export const schemaGooglePhotosFoodOptions = new Schema<ISchemaAutomationGooglePhotosFoodOptions>(
   'AutomationGooglePhotosFoodOptions',
   {
-    definitions: {},
     $schema: 'http://json-schema.org/draft-07/schema#',
-    $id: 'https://example.com/object1617247488.json',
-    title: 'Root',
     type: 'object',
     required: ['profile', 'recordGroup', 'initialFromDate'],
     properties: {
@@ -26,14 +23,14 @@ export const schemaGooglePhotosFoodOptions = new Schema<ISchemaAutomationGoogleP
       },
       recordGroup: {
         $id: '#root/recordGroup',
-        title: 'Recordgroup',
+        title: 'Record group',
         type: 'string',
         default: '',
         pattern: '^.*$',
       },
       initialFromDate: {
         $id: '#root/initialFromDate',
-        title: 'Initialfromdate',
+        title: 'Initial from date',
         type: 'string',
         format: 'date-time',
       },

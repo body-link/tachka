@@ -1,37 +1,40 @@
-import { t } from '@marblejs/middleware-io';
-import { map, mergeMap } from 'rxjs/operators';
+import { Observable, of } from 'rxjs';
+import { map, mergeMap, withLatestFrom } from 'rxjs/operators';
 import {
-  IntegrationDataEntity,
   IntegrationDataEntityFromIntegrationData,
   integrationDataRepository$,
 } from '../../entities/integration_data/typeorm';
-import { isDefined } from '../../common/type-guards';
 import { IIntegrationDataRefine } from '../../entities/integration_data/types';
+import { Schema } from '../../schemas/Schema';
+import { decodeWith } from '../../common/io/utils';
+import { toAffected } from '../../common/utils';
 
-export const integrationStateReg = new Map<string, IntegrationState<t.Mixed>>();
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const integrationStateReg = new Map<string, IntegrationState<any>>();
 
-export class IntegrationState<DataC extends t.Mixed, DataType = t.TypeOf<DataC>> {
+export class IntegrationState<DataType> {
   state$ = integrationDataRepository$.pipe(
-    mergeMap((repository) => repository.findOne({ where: { id: this.id } })),
-    map((entity) => {
-      if (isDefined(entity)) {
-        return this.toObject(entity);
-      } else {
-        throw new Error(`Please create integration ${this.id}`);
-      }
-    })
-  );
+    mergeMap((repo) => repo.findOneOrFail(this.id)),
+    map(IntegrationDataEntityFromIntegrationData.encode)
+  ) as Observable<IIntegrationDataRefine<DataType>>;
 
-  constructor(public readonly id: string, public readonly dataCodec: DataC) {
+  constructor(public readonly id: string, public readonly schemaOptions: Schema<DataType>) {
     integrationStateReg.set(id, this);
   }
 
-  setData$ = (data: DataType) =>
-    integrationDataRepository$.pipe(
-      mergeMap((repository) => repository.save({ id: this.id, data: JSON.stringify(data) })),
-      map(this.toObject)
-    );
+  setData$ = (rawData: DataType) =>
+    of(rawData).pipe(
+      map(this.schemaOptions.decode),
+      map((d) => ({ id: this.id, data: d })),
+      map(decodeWith(IntegrationDataEntityFromIntegrationData)),
+      withLatestFrom(integrationDataRepository$),
+      mergeMap(([entity, repository]) => repository.save(entity)),
+      map(IntegrationDataEntityFromIntegrationData.encode)
+    ) as Observable<IIntegrationDataRefine<DataType>>;
 
-  private toObject = (entity: IntegrationDataEntity) =>
-    IntegrationDataEntityFromIntegrationData.encode(entity) as IIntegrationDataRefine<DataType>;
+  removeData$ = () =>
+    integrationDataRepository$.pipe(
+      mergeMap((repo) => repo.delete(this.id)),
+      map(toAffected)
+    );
 }

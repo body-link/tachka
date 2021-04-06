@@ -10,12 +10,12 @@ import { isDefined } from '../../common/type-guards';
 import { IIntegrationAuthRefine } from '../../entities/integration_auth/types';
 
 export class IntegrationAuthState<
-  DataC extends t.Mixed,
+  DataType,
   DataAuthC extends t.Mixed,
   DataAuthType = t.TypeOf<DataAuthC>
 > {
   constructor(
-    public readonly integrationState: IntegrationState<DataC>,
+    public readonly integrationState: IntegrationState<DataType>,
     public readonly dataCodec: DataAuthC
   ) {}
 

@@ -7,7 +7,11 @@ import {
 import { recordCreateEffect$ } from './external/record/create.effect';
 import { loginEffect$, logoutEffect$ } from './internal/auth.effects';
 import { googleOAuth2CallbackEffect$ } from './custom/googleOAuth2Callback.effect';
-import { integrationDataSetEffect$ } from './internal/integration/data.effects';
+import {
+  integrationDataListEffect$,
+  integrationDataRemoveEffect$,
+  integrationDataSetEffect$,
+} from './internal/integration/data.effects';
 import {
   managerCreateEffect$,
   managerStartEffect$,
@@ -24,7 +28,13 @@ export const api$ = combineRoutes('/', [
     loginEffect$,
     logoutEffect$,
     combineRoutes('/integration', {
-      effects: [combineRoutes('/data', [integrationDataSetEffect$])],
+      effects: [
+        combineRoutes('/data', [
+          integrationDataListEffect$,
+          integrationDataSetEffect$,
+          integrationDataRemoveEffect$,
+        ]),
+      ],
       middlewares: [authorizeClient$],
     }),
     combineRoutes('/automation', {

@@ -21,6 +21,7 @@ import { IntegrationAuthState } from '../common/IntegrationAuthState';
 import { ActionableError } from '../../common/ActionableError';
 import { catchErrorToUndefined } from '../../common/rxjs-utils';
 import { ENV } from '../../config/env';
+import { schemaIntegrationGoogleOptions } from './schema-options';
 
 const ScopesType = t.keyof({
   'https://www.googleapis.com/auth/userinfo.email': null,
@@ -33,13 +34,7 @@ const ScopesType = t.keyof({
 type TScope = t.TypeOf<typeof ScopesType>;
 
 export class IntegrationGoogleClient {
-  static readonly state = new IntegrationState(
-    'GoogleOAuth2',
-    t.type({
-      clientID: NonEmptyString,
-      clientSecret: NonEmptyString,
-    })
-  );
+  static readonly state = new IntegrationState('GoogleOAuth2', schemaIntegrationGoogleOptions);
 
   static readonly authState = new IntegrationAuthState(
     IntegrationGoogleClient.state,

@@ -7,6 +7,7 @@ import { tokenRepository$ } from './typeorm';
 import { getEnvSecret } from '../../config/env';
 import { isArray, isDefined } from '../../common/type-guards';
 import { ETokenScope, ITokenPayload, ITokenPayloadSeed } from './types';
+import { toAffected } from '../../common/utils';
 
 const cache = new Map<string, number>();
 
@@ -33,9 +34,7 @@ export const removeToken$ = (token: string | NonEmptyArray<string>) => {
     mergeMap((repo) => repo.delete(tokenIDs)),
     map((v) => {
       tokens.forEach(cache.delete, cache);
-      return {
-        affected: v.affected,
-      };
+      return toAffected(v);
     })
   );
 };
