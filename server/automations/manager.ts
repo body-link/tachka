@@ -1,41 +1,49 @@
 import * as cron from 'node-cron';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { map, mergeMap, tap } from 'rxjs/operators';
-import { TAutomationInstanceID } from './types';
 import { Automation } from './common/Automation';
 import { isDefined, isError, isNotNull } from '../common/type-guards';
 import {
   IAutomationInstance,
   IAutomationInstanceCreate,
   IAutomationInstanceUpdate,
+  TAutomationInstanceID,
 } from '../entities/automation_instance/types';
 import { automationInstanceGetAll$ } from '../entities/automation_instance/actions/get-all';
 import { automationInstanceSave$ } from '../entities/automation_instance/actions/save';
 import { getAutomation, getAutomationSchemaOptions } from './register';
 import { TOption } from '../common/type-utils';
+import { automationRemoveByID$ } from '../entities/automation_instance/actions/remove-by-id';
 
-const automations = new Map<TAutomationInstanceID, Automation>();
-const automationItems = new Map<TAutomationInstanceID, IAutomationInstance>();
-const automationTasks = new Map<TAutomationInstanceID, cron.ScheduledTask>();
+// The role of the manager is to efficiently manage memory based on automation instance settings
+
+// This's automation instance settings map which is always sync with DB values
+const automationInstances = new Map<TAutomationInstanceID, IAutomationInstance>();
+
+// The value exists only when setting isOn is true
+const automationExemplars = new Map<TAutomationInstanceID, Automation>();
+
+// The value exists only when setting cron is Cron io-type
+const automationCronTasks = new Map<TAutomationInstanceID, cron.ScheduledTask>();
 
 automationInstanceGetAll$().subscribe((items) => items.forEach(init));
 
-export const runAutomationInstance = (id: TAutomationInstanceID) => {
-  const automation = automations.get(id);
-  if (isDefined(automation)) {
-    automation.start();
+export const startAutomationExemplar = (id: TAutomationInstanceID) => {
+  const exemplar = automationExemplars.get(id);
+  if (isDefined(exemplar)) {
+    exemplar.start();
   } else {
-    throw new Error(`Automation doesn't exist or turned off`);
+    throw new Error(`Automation ID ${id} doesn't exist or turned off`);
   }
 };
 
 export const getAutomationInstanceStatus$ = () =>
   automationInstanceGetAll$().pipe(
     map((items) => {
-      const extension = Array.from(automations.entries()).reduce<
+      const extension = Array.from(automationExemplars.entries()).reduce<
         Record<number, { status: string; error: TOption<string> }>
-      >((acc, [id, automation]) => {
-        const state = automation.state$.getValue();
+      >((acc, [id, exemplar]) => {
+        const state = exemplar.state$.getValue();
         acc[id] = {
           status: isError(state) ? 'crashed' : state ? 'working' : 'stopped',
           error: isError(state) ? state.message : undefined,
@@ -64,7 +72,7 @@ export const updateAutomationInstance$ = ({
   schedule,
   isOn,
 }: IAutomationInstanceUpdate) =>
-  of(automationItems.get(id)).pipe(
+  of(automationInstances.get(id)).pipe(
     map((prevItem) => {
       if (!isDefined(prevItem)) {
         throw new Error(`Automation ID ${id} wasn't found`);
@@ -84,16 +92,16 @@ export const updateAutomationInstance$ = ({
     mergeMap((patchItem) =>
       automationInstanceSave$(patchItem).pipe(
         tap((nextItem) => {
-          automationItems.set(id, nextItem);
+          automationInstances.set(id, nextItem);
           if (isDefined(patchItem.isOn)) {
-            terminateInstance(id);
+            terminateExemplar(id);
             terminateTask(id);
-            initInstance(id);
+            initExemplar(id);
             initTask(id);
           } else {
             if (isDefined(patchItem.options)) {
-              terminateInstance(id);
-              initInstance(id);
+              terminateExemplar(id);
+              initExemplar(id);
             }
             if (isDefined(patchItem.schedule)) {
               terminateTask(id);
@@ -105,53 +113,64 @@ export const updateAutomationInstance$ = ({
     )
   );
 
+export const removeAutomationInstance$ = (id: TAutomationInstanceID) =>
+  automationInstances.has(id)
+    ? automationRemoveByID$(id).pipe(
+        tap(() => {
+          automationInstances.delete(id);
+          terminateExemplar(id);
+          terminateTask(id);
+        })
+      )
+    : throwError(new Error(`Automation ID ${id} doesn't exist`));
+
 const init = (item: IAutomationInstance) => {
   const id = item.id;
-  automationItems.set(id, item);
-  initInstance(id);
+  automationInstances.set(id, item);
+  initExemplar(id);
   initTask(id);
 };
 
-const initInstance = (id: TAutomationInstanceID) => {
-  const item = automationItems.get(id);
+const initExemplar = (id: TAutomationInstanceID) => {
+  const item = automationInstances.get(id);
   if (isDefined(item) && item.isOn) {
     const AutomationLike = getAutomation(item.automation);
-    const automation = new AutomationLike(item.options);
-    automations.set(id, automation);
+    const exemplar = new AutomationLike(item.options);
+    automationExemplars.set(id, exemplar);
   }
 };
 
-const terminateInstance = (id: TAutomationInstanceID) => {
-  const automation = automations.get(id);
-  if (isDefined(automation)) {
-    automation.forceStop();
-    automations.delete(id);
+const terminateExemplar = (id: TAutomationInstanceID) => {
+  const exemplar = automationExemplars.get(id);
+  if (isDefined(exemplar)) {
+    exemplar.forceStop();
+    automationExemplars.delete(id);
   }
 };
 
 const initTask = (id: TAutomationInstanceID) => {
-  const item = automationItems.get(id);
-  const automation = automations.get(id);
-  if (isDefined(item) && isDefined(automation)) {
+  const item = automationInstances.get(id);
+  const exemplar = automationExemplars.get(id);
+  if (isDefined(item) && isDefined(exemplar)) {
     const schedule = item.schedule;
     if (isNotNull(schedule) && item.isOn) {
       if (schedule === 'ASAP') {
-        automation.start();
+        exemplar.start();
       } else {
         const task = cron.schedule(schedule, () => {
-          automation.forceStop();
-          automation.start();
+          exemplar.forceStop();
+          exemplar.start();
         });
-        automationTasks.set(id, task);
+        automationCronTasks.set(id, task);
       }
     }
   }
 };
 
 const terminateTask = (id: TAutomationInstanceID) => {
-  const task = automationTasks.get(id);
+  const task = automationCronTasks.get(id);
   if (isDefined(task)) {
     task.destroy();
-    automationTasks.delete(id);
+    automationCronTasks.delete(id);
   }
 };

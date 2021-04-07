@@ -5,6 +5,8 @@ import { AutomationsRegKeys } from '../../automations/register';
 import { Cron } from '../../common/io/Cron';
 import { optional } from '../../common/io/utils';
 
+export type TAutomationInstanceID = number;
+
 export const AutomationInstanceSchedule = t.union([t.null, Cron, t.literal('ASAP')]);
 export type IAutomationInstanceSchedule = t.TypeOf<typeof AutomationInstanceSchedule>;
 

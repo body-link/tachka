@@ -1,9 +1,9 @@
 import { t } from '@marblejs/middleware-io';
 import { AutomationGooglePhotosFood } from './google-photos-food/AutomationGooglePhotosFood';
 import { isDefined } from '../common/type-guards';
-import { TAutomationLike } from './types';
 import { schemaGooglePhotosFoodOptions } from './google-photos-food/schema-options';
 import { Schema } from '../schemas/Schema';
+import { TAutomationLike } from './common/Automation';
 
 // WARNING!
 // Each value must be compatible with ISlug type

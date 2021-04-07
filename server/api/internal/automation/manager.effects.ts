@@ -5,7 +5,8 @@ import { requestValidator$, t } from '@marblejs/middleware-io';
 import {
   createAutomationInstance$,
   getAutomationInstanceStatus$,
-  runAutomationInstance,
+  removeAutomationInstance$,
+  startAutomationExemplar,
   updateAutomationInstance$,
 } from '../../../automations/manager';
 import { PositiveInt } from '../../../common/io/Positive';
@@ -32,7 +33,7 @@ export const managerStartEffect$ = r.pipe(
   r.useEffect((req$) =>
     req$.pipe(
       validateRequestStart,
-      map((req) => runAutomationInstance(req.body.id)),
+      map((req) => startAutomationExemplar(req.body.id)),
       toBody
     )
   )
@@ -65,6 +66,22 @@ export const managerUpdateEffect$ = r.pipe(
     req$.pipe(
       validateRequestUpdate,
       mergeMap((req) => updateAutomationInstance$(req.body)),
+      toBody
+    )
+  )
+);
+
+const validateRemoveByIDRequest = requestValidator$({
+  body: PositiveInt,
+});
+
+export const managerRemoveEffect$ = r.pipe(
+  r.matchPath('/remove'),
+  r.matchType('POST'),
+  r.useEffect((req$) =>
+    req$.pipe(
+      validateRemoveByIDRequest,
+      mergeMap((req) => removeAutomationInstance$(req.body)),
       toBody
     )
   )

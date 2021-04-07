@@ -4,8 +4,7 @@ import {
   AutomationInstanceEntityFromAutomationInstance,
   automationInstanceRepository$,
 } from '../typeorm';
-import { IAutomationInstance } from '../types';
-import { TAutomationInstanceID } from '../../../automations/types';
+import { IAutomationInstance, TAutomationInstanceID } from '../types';
 
 export const automationInstanceGetByID$ = (
   id: TAutomationInstanceID

@@ -34,3 +34,5 @@ export abstract class Automation<TOptions = unknown> implements Unsubscribable {
 
   readonly unsubscribe = () => this.sub.unsubscribe();
 }
+
+export type TAutomationLike<T = unknown> = new (options: T) => Automation<T>;

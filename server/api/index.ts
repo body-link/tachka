@@ -14,6 +14,7 @@ import {
 } from './internal/integration/data.effects';
 import {
   managerCreateEffect$,
+  managerRemoveEffect$,
   managerStartEffect$,
   managerStatusEffect$,
   managerUpdateEffect$,
@@ -44,6 +45,7 @@ export const api$ = combineRoutes('/', [
           managerStartEffect$,
           managerCreateEffect$,
           managerUpdateEffect$,
+          managerRemoveEffect$,
         ]),
       ],
       middlewares: [authorizeClient$],
