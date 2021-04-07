@@ -4,6 +4,7 @@ import { isDefined } from '../common/type-guards';
 import { schemaGooglePhotosFoodOptions } from './google-photos-food/schema-options';
 import { Schema } from '../schemas/Schema';
 import { TAutomationLike } from './common/Automation';
+import { EBuiltInBucket } from '../buckets/built-in/register';
 
 // WARNING!
 // Each value must be compatible with ISlug type
@@ -11,32 +12,40 @@ export enum EAutomation {
   GooglePhotosFood = 'automation-google-photos-food',
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const regAutomation: Record<EAutomation, TAutomationLike<any>> = {
-  [EAutomation.GooglePhotosFood]: AutomationGooglePhotosFood,
+const reg: Record<EAutomation, Omit<IAutomationDefinition, 'automation'>> = {
+  [EAutomation.GooglePhotosFood]: {
+    name: 'Google Photos Food',
+    description: `Parse Google Photos with food label to ${EBuiltInBucket.PhotosFood} bucket`,
+    recipe: '#TODO\nWrite recipe',
+    class: AutomationGooglePhotosFood,
+    schemaOptions: schemaGooglePhotosFoodOptions,
+  },
 };
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const regAutomationSchemaOptions: Record<EAutomation, Schema<any>> = {
-  [EAutomation.GooglePhotosFood]: schemaGooglePhotosFoodOptions,
-};
+export const AutomationsRegKeys = t.keyof(reg);
 
-export const AutomationsRegKeys = t.keyof(regAutomation);
-
-export const getAutomation = (name: EAutomation) => {
-  const AutomationOrUndefined = regAutomation[name];
-  if (isDefined(AutomationOrUndefined)) {
-    return AutomationOrUndefined;
+export const getAutomationDefinition = (automation: EAutomation) => {
+  const definition = allAutomationDefinitions[automation];
+  if (isDefined(definition)) {
+    return definition;
   } else {
-    throw new Error(`${name} doesn't exist`);
+    throw new Error(`Automation definition ${automation} doesn't exist`);
   }
 };
 
-export const getAutomationSchemaOptions = (name: EAutomation) => {
-  const schemaOptions = regAutomationSchemaOptions[name];
-  if (isDefined(schemaOptions)) {
-    return schemaOptions;
-  } else {
-    throw new Error(`${name} doesn't exist`);
-  }
-};
+export const allAutomationDefinitions = Object.entries(reg).reduce((acc, [key, definition]) => {
+  const automation = key as EAutomation;
+  acc[automation] = { automation, ...definition };
+  return acc;
+}, {} as Record<EAutomation, IAutomationDefinition>);
+
+export interface IAutomationDefinition {
+  automation: EAutomation;
+  name: string;
+  description: string;
+  recipe: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  class: TAutomationLike<any>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  schemaOptions: Schema<any>;
+}

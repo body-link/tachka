@@ -1,6 +1,8 @@
 import { ISchemaImage } from '../../schemas/schema-image';
 import { IGoogleMediaItem } from '../../integrations/google/IntegrationGooglePhotos';
 
+export const getItemID = (item: IGoogleMediaItem) => `AuGPF__${item.id}`;
+
 export const toData = (item: IGoogleMediaItem): ISchemaImage => {
   const size = {
     width: parseInt(item.mediaMetadata.width),

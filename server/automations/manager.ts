@@ -11,8 +11,7 @@ import {
 } from '../entities/automation_instance/types';
 import { automationInstanceGetAll$ } from '../entities/automation_instance/actions/get-all';
 import { automationInstanceSave$ } from '../entities/automation_instance/actions/save';
-import { getAutomation, getAutomationSchemaOptions } from './register';
-import { TOption } from '../common/type-utils';
+import { getAutomationDefinition } from './register';
 import { automationRemoveByID$ } from '../entities/automation_instance/actions/remove-by-id';
 
 // The role of the manager is to efficiently manage memory based on automation instance settings
@@ -28,36 +27,21 @@ const automationCronTasks = new Map<TAutomationInstanceID, cron.ScheduledTask>()
 
 automationInstanceGetAll$().subscribe((items) => items.forEach(init));
 
-export const startAutomationExemplar = (id: TAutomationInstanceID) => {
-  const exemplar = automationExemplars.get(id);
-  if (isDefined(exemplar)) {
-    exemplar.start();
-  } else {
-    throw new Error(`Automation ID ${id} doesn't exist or turned off`);
-  }
-};
+export const startAutomationExemplar = (id: TAutomationInstanceID) =>
+  getAutomationExemplar(id).start();
 
-export const getAutomationInstanceStatus$ = () =>
-  automationInstanceGetAll$().pipe(
-    map((items) => {
-      const extension = Array.from(automationExemplars.entries()).reduce<
-        Record<number, { status: string; error: TOption<string> }>
-      >((acc, [id, exemplar]) => {
-        const state = exemplar.state$.getValue();
-        acc[id] = {
-          status: isError(state) ? 'crashed' : state ? 'working' : 'stopped',
-          error: isError(state) ? state.message : undefined,
-        };
-        return acc;
-      }, {});
-      return items.map((item) => ({ ...item, ...extension[item.id] }));
-    })
-  );
+export const getAutomationExemplarStatus = (id: TAutomationInstanceID) => {
+  const state = getAutomationExemplar(id).state$.getValue();
+  return {
+    status: isError(state) ? 'crashed' : state ? 'working' : 'stopped',
+    error: isError(state) ? state.message : undefined,
+  };
+};
 
 export const createAutomationInstance$ = (payload: IAutomationInstanceCreate) =>
   of(payload.automation).pipe(
-    map(getAutomationSchemaOptions),
-    mergeMap((schemaOptions) =>
+    map(getAutomationDefinition),
+    mergeMap(({ schemaOptions }) =>
       automationInstanceSave$({
         ...payload,
         options: schemaOptions.decode(payload.options),
@@ -86,7 +70,9 @@ export const updateAutomationInstance$ = ({
         patchItem.isOn = isOn;
       }
       if (isDefined(rawOptions)) {
-        patchItem.options = getAutomationSchemaOptions(prevItem.automation).decode(rawOptions);
+        patchItem.options = getAutomationDefinition(prevItem.automation).schemaOptions.decode(
+          rawOptions
+        );
       }
       return patchItem;
     }),
@@ -135,7 +121,7 @@ const init = (item: IAutomationInstance) => {
 const initExemplar = (id: TAutomationInstanceID) => {
   const item = automationInstances.get(id);
   if (isDefined(item) && item.isOn) {
-    const AutomationLike = getAutomation(item.automation);
+    const AutomationLike = getAutomationDefinition(item.automation).class;
     const exemplar = new AutomationLike(item.options);
     automationExemplars.set(id, exemplar);
   }
@@ -173,5 +159,14 @@ const terminateTask = (id: TAutomationInstanceID) => {
   if (isDefined(task)) {
     task.destroy();
     automationCronTasks.delete(id);
+  }
+};
+
+const getAutomationExemplar = (id: TAutomationInstanceID) => {
+  const exemplar = automationExemplars.get(id);
+  if (isDefined(exemplar)) {
+    return exemplar;
+  } else {
+    throw new Error(`Automation ID ${id} doesn't exist or turned off`);
   }
 };

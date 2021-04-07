@@ -4,7 +4,7 @@ import { toBody } from '../../../common/utils';
 import { requestValidator$, t } from '@marblejs/middleware-io';
 import {
   createAutomationInstance$,
-  getAutomationInstanceStatus$,
+  getAutomationExemplarStatus,
   removeAutomationInstance$,
   startAutomationExemplar,
   updateAutomationInstance$,
@@ -14,36 +14,20 @@ import {
   AutomationInstanceCreate,
   AutomationInstanceUpdate,
 } from '../../../entities/automation_instance/types';
+import { automationInstanceGetAll$ } from '../../../entities/automation_instance/actions/get-all';
+import { NumberFromString } from 'io-ts-types';
 
-export const managerStatusEffect$ = r.pipe(
-  r.matchPath('/status'),
+export const automationInstanceListEffect$ = r.pipe(
+  r.matchPath('/list'),
   r.matchType('GET'),
-  r.useEffect((req$) => req$.pipe(mergeMap(getAutomationInstanceStatus$), toBody))
-);
-
-const validateRequestStart = requestValidator$({
-  body: t.type({
-    id: PositiveInt,
-  }),
-});
-
-export const managerStartEffect$ = r.pipe(
-  r.matchPath('/start'),
-  r.matchType('POST'),
-  r.useEffect((req$) =>
-    req$.pipe(
-      validateRequestStart,
-      map((req) => startAutomationExemplar(req.body.id)),
-      toBody
-    )
-  )
+  r.useEffect((req$) => req$.pipe(mergeMap(automationInstanceGetAll$), toBody))
 );
 
 const validateRequestCreate = requestValidator$({
   body: AutomationInstanceCreate,
 });
 
-export const managerCreateEffect$ = r.pipe(
+export const automationInstanceCreateEffect$ = r.pipe(
   r.matchPath('/create'),
   r.matchType('POST'),
   r.useEffect((req$) =>
@@ -59,7 +43,7 @@ const validateRequestUpdate = requestValidator$({
   body: AutomationInstanceUpdate,
 });
 
-export const managerUpdateEffect$ = r.pipe(
+export const automationInstanceUpdateEffect$ = r.pipe(
   r.matchPath('/update'),
   r.matchType('POST'),
   r.useEffect((req$) =>
@@ -75,13 +59,43 @@ const validateRemoveByIDRequest = requestValidator$({
   body: PositiveInt,
 });
 
-export const managerRemoveEffect$ = r.pipe(
+export const automationInstanceRemoveEffect$ = r.pipe(
   r.matchPath('/remove'),
   r.matchType('POST'),
   r.useEffect((req$) =>
     req$.pipe(
       validateRemoveByIDRequest,
       mergeMap((req) => removeAutomationInstance$(req.body)),
+      toBody
+    )
+  )
+);
+
+const validateRequestIDinParams = requestValidator$({
+  params: t.type({
+    id: NumberFromString.pipe(PositiveInt),
+  }),
+});
+
+export const automationInstanceStatusEffect$ = r.pipe(
+  r.matchPath('/status/:id'),
+  r.matchType('GET'),
+  r.useEffect((req$) =>
+    req$.pipe(
+      validateRequestIDinParams,
+      map((req) => getAutomationExemplarStatus(req.params.id)),
+      toBody
+    )
+  )
+);
+
+export const automationInstanceStartEffect$ = r.pipe(
+  r.matchPath('/start/:id'),
+  r.matchType('POST'),
+  r.useEffect((req$) =>
+    req$.pipe(
+      validateRequestIDinParams,
+      map((req) => startAutomationExemplar(req.params.id)),
       toBody
     )
   )

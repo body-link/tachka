@@ -1,13 +1,10 @@
 import * as A from 'fp-ts/lib/Array';
-import {
-  IGoogleMediaItem,
-  IntegrationGooglePhotos,
-} from '../../integrations/google/IntegrationGooglePhotos';
+import { IntegrationGooglePhotos } from '../../integrations/google/IntegrationGooglePhotos';
 import { filter, map, mapTo, mergeMap } from 'rxjs/operators';
 import { recordCreate$, recordCreateOptions } from '../../entities/record/actions/create';
 import { dateToTimestamp, decodeWith, timestampToDate } from '../../common/io/utils';
 import { Automation } from '../common/Automation';
-import { toData } from './utils';
+import { getItemID, toData } from './utils';
 import { recordList$, TRecordListOptions } from '../../entities/record/actions/list';
 import { debug } from '../../common/rxjs-utils';
 import { IRecordRefine } from '../../entities/record/types';
@@ -59,5 +56,3 @@ export class AutomationGooglePhotosFood extends Automation<ISchemaAutomationGoog
       debug(this.name)
     );
 }
-
-const getItemID = (item: IGoogleMediaItem) => `AuGPF__${item.id}`;

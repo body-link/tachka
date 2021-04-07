@@ -12,13 +12,15 @@ import {
   integrationDataRemoveEffect$,
   integrationDataSetEffect$,
 } from './internal/integration/data.effects';
+import { automationDefinitionsEffect$ } from './internal/automation/definitions.effect';
 import {
-  managerCreateEffect$,
-  managerRemoveEffect$,
-  managerStartEffect$,
-  managerStatusEffect$,
-  managerUpdateEffect$,
-} from './internal/automation/manager.effects';
+  automationInstanceListEffect$,
+  automationInstanceCreateEffect$,
+  automationInstanceRemoveEffect$,
+  automationInstanceStartEffect$,
+  automationInstanceStatusEffect$,
+  automationInstanceUpdateEffect$,
+} from './internal/automation/instance.effects';
 import { recordGetByIDEffect$ } from './external/record/get-by-id.effect';
 import { recordUpdateEffect$ } from './external/record/update.effect';
 import { recordRemoveByIDEffect$ } from './external/record/remove-by-id.effect';
@@ -40,12 +42,14 @@ export const api$ = combineRoutes('/', [
     }),
     combineRoutes('/automation', {
       effects: [
-        combineRoutes('/manager', [
-          managerStatusEffect$,
-          managerStartEffect$,
-          managerCreateEffect$,
-          managerUpdateEffect$,
-          managerRemoveEffect$,
+        automationDefinitionsEffect$,
+        combineRoutes('/instance', [
+          automationInstanceListEffect$,
+          automationInstanceCreateEffect$,
+          automationInstanceUpdateEffect$,
+          automationInstanceRemoveEffect$,
+          automationInstanceStatusEffect$,
+          automationInstanceStartEffect$,
         ]),
       ],
       middlewares: [authorizeClient$],
