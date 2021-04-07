@@ -16,6 +16,9 @@ export class AutomationInstanceEntity {
   @Column('varchar', { length: 128, nullable: false })
   automation!: string;
 
+  @Column('varchar', { length: 128, nullable: false })
+  name!: string;
+
   @Column('simple-json', { nullable: false })
   options!: string;
 

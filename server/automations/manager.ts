@@ -68,6 +68,7 @@ export const createAutomationInstance$ = (payload: IAutomationInstanceCreate) =>
 
 export const updateAutomationInstance$ = ({
   id,
+  name,
   options: rawOptions,
   schedule,
   isOn,
@@ -77,7 +78,7 @@ export const updateAutomationInstance$ = ({
       if (!isDefined(prevItem)) {
         throw new Error(`Automation ID ${id} wasn't found`);
       }
-      const patchItem: Partial<IAutomationInstance> = { id };
+      const patchItem: Partial<IAutomationInstance> = { id, name };
       if (isDefined(schedule) && schedule !== prevItem.schedule) {
         patchItem.schedule = schedule;
       }

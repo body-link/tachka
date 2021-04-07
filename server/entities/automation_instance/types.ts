@@ -1,5 +1,5 @@
 import { t } from '@marblejs/middleware-io';
-import { Json } from 'io-ts-types';
+import { Json, NonEmptyString } from 'io-ts-types';
 import { PositiveInt } from '../../common/io/Positive';
 import { AutomationsRegKeys } from '../../automations/register';
 import { Cron } from '../../common/io/Cron';
@@ -13,6 +13,7 @@ export type IAutomationInstanceSchedule = t.TypeOf<typeof AutomationInstanceSche
 export const AutomationInstanceCreate = t.type(
   {
     automation: AutomationsRegKeys,
+    name: NonEmptyString,
     options: Json,
     schedule: AutomationInstanceSchedule,
     isOn: t.boolean,
@@ -36,6 +37,7 @@ export type IAutomationInstanceWithOptions<T> = { options: T } & IAutomationInst
 export const AutomationInstanceUpdate = t.type(
   {
     id: PositiveInt,
+    name: optional(NonEmptyString),
     options: optional(Json),
     schedule: optional(AutomationInstanceSchedule),
     isOn: optional(t.boolean),
