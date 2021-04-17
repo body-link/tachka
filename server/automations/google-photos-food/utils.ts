@@ -3,22 +3,9 @@ import { IGoogleMediaItem } from '../../integrations/google/IntegrationGooglePho
 
 export const getItemID = (item: IGoogleMediaItem) => `AuGPF__${item.id}`;
 
-export const toData = (item: IGoogleMediaItem): ISchemaImage => {
-  const size = {
-    width: parseInt(item.mediaMetadata.width),
-    height: parseInt(item.mediaMetadata.height),
-  };
-  const d = size.width > size.height ? 'width' : 'height';
-  const m = size.width <= size.height ? 'width' : 'height';
-  const ration = size[d] / GOOGLE_PHOTO_THUMBNAIL;
-  size[d] = GOOGLE_PHOTO_THUMBNAIL;
-  size[m] = Math.round(size[m] / ration);
-  return {
-    id: item.id,
-    url: item.baseUrl,
-    ...size,
-    source: item.productUrl,
-  };
-};
-
-const GOOGLE_PHOTO_THUMBNAIL = 512;
+export const toData = (item: IGoogleMediaItem): ISchemaImage => ({
+  id: item.id,
+  url: item.productUrl,
+  width: parseInt(item.mediaMetadata.width),
+  height: parseInt(item.mediaMetadata.height),
+});
