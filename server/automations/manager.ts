@@ -157,7 +157,7 @@ const initTask = (id: TAutomationInstanceID) => {
 const terminateTask = (id: TAutomationInstanceID) => {
   const task = automationCronTasks.get(id);
   if (isDefined(task)) {
-    task.destroy();
+    task.stop();
     automationCronTasks.delete(id);
   }
 };
