@@ -24,6 +24,21 @@ export type IRecord = t.TypeOf<typeof Record>;
 
 export type IRecordRefine<T> = { data: T } & IRecord;
 
+export const RecordCreate = t.type(
+  {
+    id: optional(NonEmptyString),
+    group: Slug,
+    bucket: Slug,
+    provider: Slug,
+    timestamp: UnixTime,
+    offset: t.union([UTCOffset, t.null]),
+    data: Json,
+  },
+  'RecordCreate'
+);
+
+export type IRecordCreate = t.TypeOf<typeof RecordCreate>;
+
 export const RecordUpdate = t.type(
   {
     id: NonEmptyString,

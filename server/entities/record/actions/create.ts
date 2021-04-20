@@ -1,17 +1,20 @@
+import { nanoid } from 'nanoid';
 import { mergeMap } from 'rxjs/operators';
 import { nonEmptyArray } from 'io-ts-types';
 import { RecordEntity, RecordEntityFromRecord } from '../typeorm';
-import { IRecord, Record } from '../types';
+import { IRecordCreate, RecordCreate, TRecordID } from '../types';
 import { connection$ } from '../../../config/typeorm';
 import { convertRecordToRecordEntity } from './utils';
 import { NonEmptyArray } from 'fp-ts/NonEmptyArray';
 
-export const recordCreateOptions = nonEmptyArray(Record);
+export const recordCreateOptions = nonEmptyArray(RecordCreate);
 
-export const recordCreate$ = (records: NonEmptyArray<IRecord>) =>
+export const recordCreate$ = (records: NonEmptyArray<IRecordCreate>) =>
   connection$.pipe(
     mergeMap((connection) => {
-      const recordEntities = records.map(convertRecordToRecordEntity);
+      const recordEntities = records
+        .map(({ id, ...rest }) => ({ id: id ?? (nanoid() as TRecordID), ...rest }))
+        .map(convertRecordToRecordEntity);
       // TODO: since this is a stream, we need to think about how to rollback changes
       // in case the stream was unsubscribed before finish operation
       return connection

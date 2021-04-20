@@ -9,7 +9,7 @@ export const recordUpdate$ = (patchRecord: IRecordUpdate) =>
     withLatestFrom(recordRepository$),
     mergeMap(([prevRecord, repo]) => {
       const nextRecord = { ...prevRecord, ...patchRecord } as IRecord;
-      return repo.save(convertRecordToRecordEntity(nextRecord, 0));
+      return repo.save(convertRecordToRecordEntity(nextRecord));
     }),
     map(RecordEntityFromRecord.encode)
   );
