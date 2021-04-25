@@ -4,7 +4,11 @@ import {
   recordListEffect$,
   recordListWithCountEffect$,
 } from './external/record/list.effect';
+import { recordValidateEffect$ } from './external/record/validate.effect';
 import { recordCreateEffect$ } from './external/record/create.effect';
+import { recordGetByIDEffect$ } from './external/record/get-by-id.effect';
+import { recordUpdateEffect$ } from './external/record/update.effect';
+import { recordRemoveByIDEffect$ } from './external/record/remove-by-id.effect';
 import { loginEffect$, logoutEffect$ } from './internal/auth.effects';
 import { googleOAuth2CallbackEffect$ } from './custom/googleOAuth2Callback.effect';
 import {
@@ -21,9 +25,6 @@ import {
   automationInstanceStatusEffect$,
   automationInstanceUpdateEffect$,
 } from './internal/automation/instance.effects';
-import { recordGetByIDEffect$ } from './external/record/get-by-id.effect';
-import { recordUpdateEffect$ } from './external/record/update.effect';
-import { recordRemoveByIDEffect$ } from './external/record/remove-by-id.effect';
 import { authorizeAny$, authorizeClient$ } from '../entities/token/middlewares';
 
 export const api$ = combineRoutes('/', [
@@ -63,6 +64,7 @@ export const api$ = combineRoutes('/', [
         recordListEffect$,
         recordCountEffect$,
         recordListWithCountEffect$,
+        recordValidateEffect$,
         recordCreateEffect$,
         recordUpdateEffect$,
         recordRemoveByIDEffect$,
