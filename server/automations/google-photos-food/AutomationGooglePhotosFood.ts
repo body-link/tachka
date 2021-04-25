@@ -51,8 +51,7 @@ export class AutomationGooglePhotosFood extends Automation<ISchemaAutomationGoog
         })
       ),
       map(decodeWith(recordCreateOptions)),
-      mergeMap(recordCreate$),
-      map((items) => `Add ${items.length} records`),
+      mergeMap((records) => recordCreate$(records)),
       debug(this.name)
     );
 }

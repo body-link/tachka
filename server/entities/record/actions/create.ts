@@ -1,7 +1,7 @@
 import { nanoid } from 'nanoid';
 import { mergeMap } from 'rxjs/operators';
 import { nonEmptyArray } from 'io-ts-types';
-import { RecordEntity, RecordEntityFromRecord } from '../typeorm';
+import { RecordEntity } from '../typeorm';
 import { IRecordCreate, RecordCreate, TRecordID } from '../types';
 import { connection$ } from '../../../config/typeorm';
 import { convertRecordToRecordEntity } from './utils';
@@ -9,7 +9,7 @@ import { NonEmptyArray } from 'fp-ts/NonEmptyArray';
 
 export const recordCreateOptions = nonEmptyArray(RecordCreate);
 
-export const recordCreate$ = (records: NonEmptyArray<IRecordCreate>) =>
+export const recordCreate$ = (records: NonEmptyArray<IRecordCreate>, orIgnore = false) =>
   connection$.pipe(
     mergeMap((connection) => {
       const recordEntities = records
@@ -22,7 +22,11 @@ export const recordCreate$ = (records: NonEmptyArray<IRecordCreate>) =>
         .insert()
         .into(RecordEntity)
         .values(recordEntities)
+        .orIgnore(orIgnore)
         .execute()
-        .then(() => recordEntities.map(RecordEntityFromRecord.encode));
+        .then(({ identifiers, raw: { affectedRows } }) => ({
+          created: affectedRows as number,
+          ignored: identifiers.length - affectedRows,
+        }));
     })
   );

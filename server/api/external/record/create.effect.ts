@@ -19,3 +19,15 @@ export const recordCreateEffect$ = r.pipe(
     )
   )
 );
+
+export const recordAddEffect$ = r.pipe(
+  r.matchPath('/add'),
+  r.matchType('POST'),
+  r.useEffect((req$) =>
+    req$.pipe(
+      validateRequest,
+      mergeMap((req) => recordCreate$(req.body, true)),
+      toBody
+    )
+  )
+);

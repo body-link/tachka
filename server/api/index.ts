@@ -5,7 +5,7 @@ import {
   recordListWithCountEffect$,
 } from './external/record/list.effect';
 import { recordValidateEffect$ } from './external/record/validate.effect';
-import { recordCreateEffect$ } from './external/record/create.effect';
+import { recordAddEffect$, recordCreateEffect$ } from './external/record/create.effect';
 import { recordGetByIDEffect$ } from './external/record/get-by-id.effect';
 import { recordUpdateEffect$ } from './external/record/update.effect';
 import { recordRemoveByIDEffect$ } from './external/record/remove-by-id.effect';
@@ -66,6 +66,7 @@ export const api$ = combineRoutes('/', [
         recordListWithCountEffect$,
         recordValidateEffect$,
         recordCreateEffect$,
+        recordAddEffect$,
         recordUpdateEffect$,
         recordRemoveByIDEffect$,
       ]),
