@@ -1,14 +1,14 @@
 import { Schema } from '../../schemas/Schema';
 import { ISlug } from '../../common/io/Slug';
 
-export interface ISchemaAutomationGooglePhotosFoodOptions {
+export interface ISchemaAutomationSleepAsAndroidOptions {
   profile: string;
   recordGroup: ISlug;
   initialFromDate: Date;
 }
 
-export const schemaAutomationGooglePhotosFoodOptions = new Schema<ISchemaAutomationGooglePhotosFoodOptions>(
-  'AutomationGooglePhotosFoodOptions',
+export const schemaAutomationSleepAsAndroidOptions = new Schema<ISchemaAutomationSleepAsAndroidOptions>(
+  'AutomationSleepAsAndroidOptions',
   {
     $schema: 'http://json-schema.org/draft-07/schema#',
     type: 'object',

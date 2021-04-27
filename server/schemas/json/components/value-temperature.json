@@ -1,0 +1,21 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schemas.body.link/components/value-temperature.json",
+  "definitions": {
+    "unit": {
+      "description": "C is Celsius; F is Fahrenheit; K is Kelvin",
+      "type": "string",
+      "enum": ["C", "F", "K"]
+    }
+  },
+  "type": "object",
+  "required": ["unit", "value"],
+  "properties": {
+    "unit": {
+      "$ref": "#/definitions/unit"
+    },
+    "value": {
+      "type": "number"
+    }
+  }
+}

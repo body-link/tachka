@@ -129,12 +129,14 @@ export class IntegrationGoogleClient {
                   })
                   .pipe(mergeMapTo(EMPTY));
               } else {
-                dedent`Received insufficient credentials.
+                const instruction = dedent`Received insufficient credentials.
                   Please try to fix it:
                   1. Remove access for your app: https://myaccount.google.com/permissions
                   2. Repeat authorization
                 `;
-                return throwError(new ActionableError(ActionableError.ActionType.External, ''));
+                return throwError(
+                  new ActionableError(ActionableError.ActionType.External, instruction)
+                );
               }
             })
           )

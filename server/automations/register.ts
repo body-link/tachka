@@ -1,24 +1,34 @@
 import { t } from '@marblejs/middleware-io';
 import { AutomationGooglePhotosFood } from './google-photos-food/AutomationGooglePhotosFood';
 import { isDefined } from '../common/type-guards';
-import { schemaGooglePhotosFoodOptions } from './google-photos-food/schema-options';
+import { schemaAutomationGooglePhotosFoodOptions } from './google-photos-food/schema-options';
 import { Schema } from '../schemas/Schema';
 import { TAutomationLike } from './common/Automation';
 import { EBuiltInBucket } from '../buckets/built-in/register';
+import { schemaAutomationSleepAsAndroidOptions } from './sleep-as-android/schema-options';
+import { AutomationSleepAsAndroid } from './sleep-as-android/AutomationSleepAsAndroid';
 
 // WARNING!
 // Each value must be compatible with ISlug type
 export enum EAutomation {
   GooglePhotosFood = 'automation-google-photos-food',
+  SleepAsAndroid = 'automation-sleep-as-android',
 }
 
 const reg: Record<EAutomation, Omit<IAutomationDefinition, 'automation'>> = {
   [EAutomation.GooglePhotosFood]: {
     name: 'Google Photos Food',
-    description: `Parse Google Photos with food label to ${EBuiltInBucket.PhotosFood} bucket`,
+    description: `Parse Google Photos with food label to ${EBuiltInBucket.FoodPhoto} bucket`,
     recipe: '#TODO\nWrite recipe',
     class: AutomationGooglePhotosFood,
-    schemaOptions: schemaGooglePhotosFoodOptions,
+    schemaOptions: schemaAutomationGooglePhotosFoodOptions,
+  },
+  [EAutomation.SleepAsAndroid]: {
+    name: 'Sleep As Android',
+    description: `Create records from SleepCloud items`,
+    recipe: '#TODO\nWrite recipe',
+    class: AutomationSleepAsAndroid,
+    schemaOptions: schemaAutomationSleepAsAndroidOptions,
   },
 };
 

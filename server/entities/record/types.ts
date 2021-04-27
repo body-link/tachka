@@ -39,6 +39,15 @@ export const RecordCreate = t.type(
 
 export type IRecordCreate = t.TypeOf<typeof RecordCreate>;
 
+export interface IRecordCreateRaw {
+  group: string;
+  bucket: string;
+  provider: string;
+  timestamp: number;
+  offset: number | null;
+  data: unknown;
+}
+
 export const RecordUpdate = t.type(
   {
     id: NonEmptyString,

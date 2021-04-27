@@ -1,0 +1,6 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schemas.body.link/tachka/buckets/label.json",
+  "description": "General labeled values",
+  "$ref": "https://schemas.body.link/components/value-label.json"
+}

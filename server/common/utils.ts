@@ -1,4 +1,7 @@
+import { Eq } from 'fp-ts/Eq';
+import * as A from 'fp-ts/Array';
 import { map } from 'rxjs/operators';
+import { pipe } from 'fp-ts/function';
 import { TIdentifier } from './type-utils';
 import { isDefined } from './type-guards';
 import { DeleteResult } from 'typeorm';
@@ -21,3 +24,13 @@ export const arrayToRecord = <T1, T2 extends TIdentifier = string>(
 };
 
 export const toAffected = (v: DeleteResult) => ({ affected: v.affected });
+
+export const groupArray = <A>(S: Eq<A>): ((as: A[]) => A[][]) => {
+  return A.chop((as) => {
+    const { init, rest } = pipe(
+      as,
+      A.spanLeft((a: A) => S.equals(a, as[0]))
+    );
+    return [init, rest];
+  });
+};

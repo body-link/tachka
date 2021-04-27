@@ -1,76 +1,62 @@
 import { IntegrationGoogleClient } from './IntegrationGoogleClient';
 import { getDate, getMonth, getYear } from 'date-fns';
 import { isDefined } from '../../common/type-guards';
-import { map, mergeMap, reduce } from 'rxjs/operators';
+import { map, mergeMap } from 'rxjs/operators';
 import { concat, EMPTY, Observable, of } from 'rxjs';
 
 export class IntegrationGooglePhotos extends IntegrationGoogleClient {
   // Optional date specifying the newest value that can be returned
+  // Be aware of this stream will emit multiple times if it has pagination
   getRecentFoodPhotos$ = (fromDate?: Date) => {
     const startDate = isDefined(fromDate)
       ? this.toDate(fromDate)
       : { year: 1990, month: 1, day: 1 };
     const endDate = this.toDate(new Date());
     const createRequest$ = (pageToken?: string): Observable<IGoogleMediaItemResults> =>
-      this.request$<IGoogleMediaItemResults>(
-        ['https://www.googleapis.com/auth/photoslibrary.readonly'],
-        {
-          method: 'POST',
-          url: 'https://photoslibrary.googleapis.com/v1/mediaItems:search',
-          body: JSON.stringify({
-            pageSize: 100,
-            pageToken,
-            filters: {
-              dateFilter: {
-                ranges: [
-                  {
-                    startDate,
-                    endDate,
-                  },
-                ],
-              },
-              contentFilter: { includedContentCategories: ['FOOD'] },
-              mediaTypeFilter: { mediaTypes: ['PHOTO'] },
-              includeArchivedMedia: true,
+      this.request$<IGoogleMediaItemResults>(['https://www.googleapis.com/auth/photoslibrary'], {
+        method: 'POST',
+        url: 'https://photoslibrary.googleapis.com/v1/mediaItems:search',
+        body: JSON.stringify({
+          pageSize: 100,
+          pageToken,
+          filters: {
+            dateFilter: {
+              ranges: [
+                {
+                  startDate,
+                  endDate,
+                },
+              ],
             },
-          }),
-        }
-      ).pipe(
-        mergeMap((res) => {
-          return concat(
-            of(res),
-            isDefined(res.nextPageToken) ? createRequest$(res.nextPageToken) : EMPTY
-          );
-        })
+            contentFilter: { includedContentCategories: ['FOOD'] },
+            mediaTypeFilter: { mediaTypes: ['PHOTO'] },
+            includeArchivedMedia: true,
+          },
+        }),
+      }).pipe(
+        mergeMap((res) =>
+          concat(of(res), isDefined(res.nextPageToken) ? createRequest$(res.nextPageToken) : EMPTY)
+        )
       );
-    return createRequest$().pipe(
-      map((res) => res.mediaItems ?? []),
-      reduce<IGoogleMediaItem[]>((acc, items) => [...acc, ...items], [])
-    );
+    return createRequest$().pipe(map((res) => res.mediaItems ?? []));
   };
 
   createAlbum$ = (title: string) => {
     const album = {
       title,
     };
-    return this.request$<IGoogleAlbum>(
-      ['https://www.googleapis.com/auth/photoslibrary.appendonly'],
-      {
-        method: 'POST',
-        url: 'https://photoslibrary.googleapis.com/v1/albums',
-        body: JSON.stringify({ album }),
-      }
-    );
+    return this.request$<IGoogleAlbum>(['https://www.googleapis.com/auth/photoslibrary'], {
+      method: 'POST',
+      url: 'https://photoslibrary.googleapis.com/v1/albums',
+      body: JSON.stringify({ album }),
+    });
   };
 
   getMediaItems$ = () =>
-    this.request$<IGoogleMediaItemResults>(
-      ['https://www.googleapis.com/auth/photoslibrary.readonly'],
-      {
-        method: 'GET',
-        url: 'https://photoslibrary.googleapis.com/v1/mediaItems',
-      }
-    );
+    this.request$<IGoogleMediaItemResults>(['https://www.googleapis.com/auth/photoslibrary'], {
+      method: 'GET',
+      url: 'https://photoslibrary.googleapis.com/v1/mediaItems',
+    });
 
   private toDate(date: Date) {
     return { year: getYear(date), month: getMonth(date) + 1, day: getDate(date) };

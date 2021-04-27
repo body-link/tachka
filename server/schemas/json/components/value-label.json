@@ -1,0 +1,24 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schemas.body.link/components/value-label.json",
+  "type": "object",
+  "required": ["label", "value"],
+  "properties": {
+    "label": {
+      "$ref": "https://schemas.body.link/components/common.json#/definitions/nonEmptyString"
+    },
+    "value": {
+      "oneOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "number"
+        },
+        { "$ref": "https://schemas.body.link/components/common.json#/definitions/nonEmptyString" },
+        { "$ref": "https://schemas.body.link/components/value-range.json" },
+        { "$ref": "https://schemas.body.link/components/value-temperature.json" }
+      ]
+    }
+  }
+}

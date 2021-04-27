@@ -1,0 +1,92 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schemas.body.link/tachka/buckets/sleep-episode.json",
+  "description": "Sleep episodes basic information",
+  "type": "object",
+  "required": ["startDateTime", "endDateTime", "fallAsleepDateTime", "wakeupDateTime"],
+  "properties": {
+    "startDateTime": {
+      "description": "Sleep episode start time, e.g. you went to bed or turned on the sleep tracker.",
+      "$ref": "https://schemas.body.link/components/common.json#/definitions/dateTime"
+    },
+    "endDateTime": {
+      "description": "Sleep episode end time, e.g. you got out of bed or turned off the sleep tracker.",
+      "$ref": "https://schemas.body.link/components/common.json#/definitions/dateTime"
+    },
+    "fallAsleepDateTime": {
+      "description": "The initial sleep onset time.",
+      "$ref": "https://schemas.body.link/components/common.json#/definitions/dateTime"
+    },
+    "wakeupDateTime": {
+      "description": "The final awakening time.",
+      "$ref": "https://schemas.body.link/components/common.json#/definitions/dateTime"
+    },
+    "isMainSleep": {
+      "description": "Main sleep is the longest sleep in the day.",
+      "type": "boolean"
+    },
+    "latencyToSleepOnsetMinutes": {
+      "description": "Minutes between when person starts to want to go to sleep and sleep onset.",
+      "$ref": "https://schemas.body.link/components/common.json#/definitions/positiveInteger"
+    },
+    "latencyToArisingOnsetMinutes": {
+      "description": "Minutes between final awakening and when person stops wanting to go to sleep.",
+      "$ref": "https://schemas.body.link/components/common.json#/definitions/positiveInteger"
+    },
+    "asleepMinutes": {
+      "description": "Minutes spent asleep between sleep onset and final awakening.",
+      "$ref": "https://schemas.body.link/components/common.json#/definitions/positiveInteger"
+    },
+    "awakeMinutes": {
+      "description": "Minutes spent awake between sleep onset and final awakening.",
+      "$ref": "https://schemas.body.link/components/common.json#/definitions/positiveInteger"
+    },
+    "deepSleepMinutes": {
+      "description": "Minutes spent in deep sleep phase.",
+      "$ref": "https://schemas.body.link/components/common.json#/definitions/positiveInteger"
+    },
+    "lightSleepMinutes": {
+      "description": "Minutes spent in light sleep phase.",
+      "$ref": "https://schemas.body.link/components/common.json#/definitions/positiveInteger"
+    },
+    "REMSleepMinutes": {
+      "description": "Minutes spent in rapid eye movement (REM) sleep phase.",
+      "$ref": "https://schemas.body.link/components/common.json#/definitions/positiveInteger"
+    },
+    "snoringSeconds": {
+      "description": "A total number of seconds when snoring was detected.",
+      "$ref": "https://schemas.body.link/components/common.json#/definitions/positiveInteger"
+    },
+    "efficiencyPercentage": {
+      "description": "Amount of time spent asleep as a percentage of the sleep episode bounded by the effective time frame.",
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100
+    },
+    "stages": {
+      "type": "array",
+      "minItems": 1,
+      "items": [
+        {
+          "type": "object",
+          "required": ["stage", "dateTime", "seconds"],
+          "properties": {
+            "stage": {
+              "description": "Stage of the sleep cycle: https://www.ninds.nih.gov/Disorders/patient-caregiver-education/understanding-sleep",
+              "type": "string",
+              "enum": ["DEEP", "LIGHT", "REM", "WAKE"]
+            },
+            "dateTime": {
+              "description": "Stage start time",
+              "$ref": "https://schemas.body.link/components/common.json#/definitions/dateTime"
+            },
+            "seconds": {
+              "description": "Seconds duration of the stage from start time",
+              "$ref": "https://schemas.body.link/components/common.json#/definitions/positiveInteger"
+            }
+          }
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schemas.body.link/components/image.json",
+  "type": "object",
+  "required": ["id", "url", "width", "height"],
+  "properties": {
+    "id": {
+      "$ref": "https://schemas.body.link/components/common.json#/definitions/nonEmptyString"
+    },
+    "url": {
+      "description": "URL to the place where the image is stored or can be seen",
+      "$ref": "https://schemas.body.link/components/common.json#/definitions/url"
+    },
+    "width": {
+      "description": "Width original size in pixels",
+      "$ref": "https://schemas.body.link/components/common.json#/definitions/positiveInteger"
+    },
+    "height": {
+      "description": "Height original size in pixels",
+      "$ref": "https://schemas.body.link/components/common.json#/definitions/positiveInteger"
+    }
+  }
+}
