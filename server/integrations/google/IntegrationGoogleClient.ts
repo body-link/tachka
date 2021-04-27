@@ -23,12 +23,12 @@ import { catchErrorToUndefined } from '../../common/rxjs-utils';
 import { ENV } from '../../config/env';
 import { schemaIntegrationGoogleOptions } from './schema-options';
 
+// https://developers.google.com/identity/protocols/oauth2/scopes
 const ScopesType = t.keyof({
   'https://www.googleapis.com/auth/userinfo.email': null,
   'https://www.googleapis.com/auth/userinfo.profile': null,
   'https://www.googleapis.com/auth/calendar': null,
-  'https://www.googleapis.com/auth/photoslibrary.readonly': null,
-  'https://www.googleapis.com/auth/photoslibrary.appendonly': null,
+  'https://www.googleapis.com/auth/photoslibrary': null,
 });
 
 type TScope = t.TypeOf<typeof ScopesType>;

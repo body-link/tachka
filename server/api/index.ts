@@ -26,6 +26,12 @@ import {
   automationInstanceUpdateEffect$,
 } from './internal/automation/instance.effects';
 import { authorizeAny$, authorizeClient$ } from '../entities/token/middlewares';
+import {
+  integrationAuthCreateEffect$,
+  integrationAuthListEffect$,
+  integrationAuthRemoveEffect$,
+  integrationAuthUpdateEffect$,
+} from './internal/integration/auth.effects';
 
 export const api$ = combineRoutes('/', [
   combineRoutes('/', [
@@ -37,6 +43,12 @@ export const api$ = combineRoutes('/', [
           integrationDataListEffect$,
           integrationDataSetEffect$,
           integrationDataRemoveEffect$,
+        ]),
+        combineRoutes('/auth', [
+          integrationAuthListEffect$,
+          integrationAuthCreateEffect$,
+          integrationAuthUpdateEffect$,
+          integrationAuthRemoveEffect$,
         ]),
       ],
       middlewares: [authorizeClient$],

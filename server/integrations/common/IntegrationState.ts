@@ -25,7 +25,7 @@ export class IntegrationState<DataType> {
   setData$ = (rawData: DataType) =>
     of(rawData).pipe(
       map(this.schemaOptions.decode),
-      map((d) => ({ id: this.id, data: d })),
+      map((data) => ({ id: this.id, data })),
       map(decodeWith(IntegrationDataEntityFromIntegrationData)),
       withLatestFrom(integrationDataRepository$),
       mergeMap(([entity, repository]) => repository.save(entity)),
